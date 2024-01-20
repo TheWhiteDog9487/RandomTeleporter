@@ -1,0 +1,47 @@
+{
+	"schemaVersion": 1,
+	"id": "randomteleporter",
+	"version": "${version}",
+	"name": "RandomTeleporter",
+	"description": "增加了两个用于随机传送的命令",
+	"authors": [
+		"TheWhiteDog9487"
+	],
+	"contact": {
+		"homepage": "https://modrinth.com/mod/randomteleporter",
+		"sources": "https://github.com/TheWhiteDog9487/RandomTeleporter"
+	},
+	"license": "WTFPL",
+	"icon": "assets/randomteleporter/icon.png",
+	"environment": "server",
+	"entrypoints": {
+		"main": [
+			"xyz.thewhitedog9487.RandomTeleporter"
+		],
+		"client": [
+			"xyz.thewhitedog9487.RandomTeleporterClient"
+		]
+	},
+	"mixins": [
+		"randomteleporter.mixins.json",
+		{
+			"config": "randomteleporter.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.14.24",
+		"minecraft": "~1.19.1",
+		"java": ">=17",
+		"fabric": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	},
+	"custom": {
+		"modmenu": {
+			"links": {
+				"twd-sasf.bilibili": "https://space.bilibili.com/401746666",
+				"twd-sasf.blog": "www.thewhitedog9487.xyz"},
+			"update_checker": true}}
+}

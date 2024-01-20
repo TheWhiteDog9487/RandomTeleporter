@@ -1,0 +1,11 @@
+{
+	"required": false,
+	"package": "xyz.thewhitedog9487.mixin.client",
+	"compatibilityLevel": "JAVA_17",
+	"client": [
+
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

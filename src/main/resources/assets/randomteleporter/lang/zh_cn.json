@@ -1,0 +1,5 @@
+{
+  "info.twd.rtp.success": "已将玩家%s传送到%d %d %d",
+  "error.twd.rtp.not_player": "执行命令的不是玩家",
+  "warning.twd.rtp.retry": "重试次数过大，为避免死循环将在本次传送中取消距离保护"
+}
