@@ -1,4 +1,6 @@
 {
-  "twd-sasf.bilibili": "Bilibili",
-  "twd-sasf.blog": "Blog"
+  "modmenu.nameTranslation.randomteleporter": "RandomTeleporter",
+  "modmenu.descriptionTranslation.randomteleporter": "Added two commands for random teleportation",
+  "twd.bilibili": "Bilibili",
+  "twd.blog": "Blog"
 }

@@ -9,7 +9,8 @@
 	],
 	"contact": {
 		"homepage": "https://modrinth.com/mod/randomteleporter",
-		"sources": "https://github.com/TheWhiteDog9487/RandomTeleporter"
+		"sources": "https://github.com/TheWhiteDog9487/RandomTeleporter",
+		"issues": "https://github.com/TheWhiteDog9487/RandomTeleporter/issues"
 	},
 	"license": "WTFPL",
 	"icon": "assets/randomteleporter/icon.png",
