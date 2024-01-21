@@ -13,14 +13,10 @@
 	},
 	"license": "WTFPL",
 	"icon": "assets/randomteleporter/icon.png",
-	"environment": "server",
+	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"xyz.thewhitedog9487.RandomTeleporter"
-		],
-		"client": [
-			"xyz.thewhitedog9487.RandomTeleporterClient"
-		]
+			"xyz.thewhitedog9487.RandomTeleporter"]
 	},
 	"mixins": [
 		"randomteleporter.mixins.json",
@@ -30,10 +26,10 @@
 		}
 	],
 	"depends": {
-		"fabricloader": ">=0.14.24",
-		"minecraft": "~1.19.1",
+		"fabricloader": ">=0.15.6",
+		"minecraft": "~1.20.4",
 		"java": ">=17",
-		"fabric": "*"
+		"fabric-api": "*"
 	},
 	"suggests": {
 		"another-mod": "*"
@@ -41,7 +37,7 @@
 	"custom": {
 		"modmenu": {
 			"links": {
-				"twd-sasf.bilibili": "https://space.bilibili.com/401746666",
-				"twd-sasf.blog": "www.thewhitedog9487.xyz"},
+				"twd.bilibili": "https://space.bilibili.com/401746666",
+				"twd.blog": "www.thewhitedog9487.xyz"},
 			"update_checker": true}}
 }

@@ -37,7 +37,7 @@ public class CommandRegister {
         Register("rtp");}
     static int execute_command_radius(ServerCommandSource Source, Long Radius){
         if (Source.getPlayer() == null) {
-            Source.sendFeedback(Text.translatable("error.twd.rtp.not_player"), true);
+            Source.sendFeedback(()->{ return  Text.translatable("error.twd.rtp.not_player"); }, true);
             return -1;}
         if (Radius == null){Radius = WorldBorder - (long) 1e4;}
         Radius = Math.abs(Radius);
@@ -45,9 +45,9 @@ public class CommandRegister {
         long Coordinate_Z = new SplittableRandom().nextLong(-Radius, Radius);
         int Coordinate_Y = 320;
         for (;
-             Blocks.AIR == Source.getWorld().getBlockState(new BlockPos(Coordinate_X, Coordinate_Y, Coordinate_Z)).getBlock() ||
-             Blocks.VOID_AIR == Source.getWorld().getBlockState(new BlockPos(Coordinate_X, Coordinate_Y, Coordinate_Z)).getBlock() ||
-             Blocks.CAVE_AIR == Source.getWorld().getBlockState(new BlockPos(Coordinate_X, Coordinate_Y, Coordinate_Z)).getBlock()
+             Blocks.AIR == Source.getWorld().getBlockState(new BlockPos(Math.toIntExact(Coordinate_X), Coordinate_Y, Math.toIntExact(Coordinate_Z))).getBlock() ||
+             Blocks.VOID_AIR == Source.getWorld().getBlockState(new BlockPos(Math.toIntExact(Coordinate_X), Coordinate_Y, Math.toIntExact(Coordinate_Z))).getBlock() ||
+             Blocks.CAVE_AIR == Source.getWorld().getBlockState(new BlockPos(Math.toIntExact(Coordinate_X), Coordinate_Y, Math.toIntExact(Coordinate_Z))).getBlock()
                 ;Coordinate_Y--){}
         Coordinate_Y++;
         Vec3d Coordinate = new Vec3d(Coordinate_X, Coordinate_Y, Coordinate_Z);
@@ -56,8 +56,9 @@ public class CommandRegister {
             execute_command_radius(Source, Radius);
             return 0;}
         if (Retry >= 126){
-            Source.sendFeedback(Text.translatable("warning.twd.rtp.retry"), true);}
+            Source.sendFeedback(()->{ return  Text.translatable("warning.twd.rtp.retry"); }, true);}
         Source.getPlayer().teleport(Source.getWorld(), Coordinate_X, Coordinate_Y, Coordinate_Z, 0, 0);
-        Source.sendFeedback(Text.translatable("info.twd.rtp.success", Source.getPlayer().getName(), Coordinate_X, Coordinate_Y, Coordinate_Z),true);
+        final int FinalCoordinate_Y = Coordinate_Y;
+        Source.sendFeedback(()->{ return  Text.translatable("info.twd.rtp.success", Source.getPlayer().getName(), Coordinate_X, FinalCoordinate_Y, Coordinate_Z); },true);
         return 0;}
 }
