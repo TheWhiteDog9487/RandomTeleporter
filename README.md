@@ -7,6 +7,11 @@
 - /rtp <被传送玩家名(PlayerID)>
 - /rtp <Radius(半径)> <被传送玩家名(PlayerID)>
 - /rtp <被传送玩家名(PlayerID)> <Radius(半径)>
+- /rtp <Radius(半径)> <OriginPos(随机中心，坐标)>
+- /rtp <Radius(半径)> <被传送玩家名(PlayerID)> <OriginEntity(随机中心，实体)>
+- /rtp <Radius(半径)> <被传送玩家名(PlayerID)> <OriginPos(随机中心，坐标)>
+- /rtp <被传送玩家名(PlayerID)> <Radius(半径)> <OriginEntity(随机中心，实体)>
+- /rtp <被传送玩家名(PlayerID)> <Radius(半径)> <OriginPos(随机中心，坐标)>
 
 ## 命令示例
 - /rtp  
@@ -24,6 +29,28 @@
 
 - /rtp 1000 TheWhiteDog9487  
 将TheWhiteDog9487随机传送到以(0,0)为中心点，1000作为随机半径的范围内的随机一点  
+
+- /rtp 1000 10000 ~ 10000  
+将执行命令的玩家随机传送到以(10000,10000)为中心点，1000作为随机半径的范围内的随机一点  
+提示：按照道理来说中心坐标是不需要高度（Y轴）的，但由于坐标的类型是Vec3d，所以还是要写高度的。  
+至于高度的具体数值，随便写，代码里也没用到过。  
+
+- /rtp 1000 TheWhiteDog9487 TheWhiteDog_CN  
+将TheWhiteDog9487随机传送到以TheWhiteDog_CN所在位置为中心点，1000作为随机半径的范围内的随机一点  
+
+- /rtp 1000 TheWhiteDog9487 10000 ~ 10000  
+将TheWhiteDog9487随机传送到以(10000,10000)为中心点，1000作为随机半径的范围内的随机一点  
+
+- /rtp TheWhiteDog9487 1000 TheWhiteDog_CN  
+将TheWhiteDog9487随机传送到以TheWhiteDog_CN所在位置为中心点，1000作为随机半径的范围内的随机一点  
+
+- /rtp TheWhiteDog9487 1000 10000 ~ 10000  
+将TheWhiteDog9487随机传送到以(10000,10000)为中心点，1000作为随机半径的范围内的随机一点  
+
+### 特别提示
+/rtp <Radius(半径)> <Origin(随机中心，实体)> 这种格式不存在。  
+因为第二个参数可能是被传送玩家名，也可能是做随机中心点的实体。  
+这两种都是实体类型，无法区分到底是哪一种，存在歧义。  
 
 # 依赖项
 由于我使用了fabric.api.command.v2中的CommandRegistrationCallback.EVENT来向游戏注册命令，所以这个模组需要依赖Fabric API
