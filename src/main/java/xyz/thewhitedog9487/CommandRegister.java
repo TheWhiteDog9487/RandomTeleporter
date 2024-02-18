@@ -16,17 +16,19 @@ import java.util.SplittableRandom;
 
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
-import static xyz.thewhitedog9487.Toolbox.Distance;
 
 public class CommandRegister {
-    final static long WorldBorder = (long) 2.9e7;
+    // https://zh.minecraft.wiki/w/%E4%B8%96%E7%95%8C%E7%95%8C%E9%99%90
+    // https://minecraft.wiki/w/World_boundary
+    final static long WorldBoundary = (long) 2.9e7;
     static byte Retry = 0;
+    static byte PermissionLevel = 2;
     public static void Register(String Name){
         // /rtp
         CommandRegistrationCallback.EVENT
                 .register((dispatcher, registryAccess, environment) ->{
                     dispatcher.register(literal(Name)
-                            .requires(source -> source.hasPermissionLevel(4))
+                            .requires(source -> source.hasPermissionLevel(PermissionLevel))
                             .executes(context -> execute_command(
                                     context.getSource(),null,null, null)));});
 
@@ -35,7 +37,7 @@ public class CommandRegister {
                 .register((dispatcher, registryAccess, environment) -> {
                     dispatcher.register(literal(Name)
                             .then(argument("Radius(半径)", LongArgumentType.longArg())
-                                    .requires(source -> source.hasPermissionLevel(4))
+                                    .requires(source -> source.hasPermissionLevel(PermissionLevel))
                                     .executes(context -> execute_command(
                                             context.getSource(),
                                             LongArgumentType.getLong(context, "Radius(半径)"),
@@ -47,7 +49,7 @@ public class CommandRegister {
                 .register((dispatcher, registryAccess, environment) -> {
                     dispatcher.register(literal(Name)
                             .then(argument("被传送玩家名(PlayerID)", EntityArgumentType.entity())
-                                    .requires(source -> source.hasPermissionLevel(4))
+                                    .requires(source -> source.hasPermissionLevel(PermissionLevel))
                                     .executes(context -> execute_command(
                                             context.getSource(),
                                             null,
@@ -60,7 +62,7 @@ public class CommandRegister {
                     dispatcher.register(literal(Name)
                             .then(argument("Radius(半径)", LongArgumentType.longArg())
                                     .then(argument("被传送玩家名(PlayerID)", EntityArgumentType.entity())
-                                            .requires(source -> source.hasPermissionLevel(4))
+                                            .requires(source -> source.hasPermissionLevel(PermissionLevel))
                                             .executes(context -> execute_command(
                                                     context.getSource(),
                                                     LongArgumentType.getLong(context, "Radius(半径)"),
@@ -73,7 +75,7 @@ public class CommandRegister {
                     dispatcher.register(literal(Name)
                             .then(argument("被传送玩家名(PlayerID)", EntityArgumentType.entity())
                                 .then(argument("Radius(半径)", LongArgumentType.longArg())
-                                            .requires(source -> source.hasPermissionLevel(4))
+                                            .requires(source -> source.hasPermissionLevel(PermissionLevel))
                                             .executes(context -> execute_command(
                                                     context.getSource(),
                                                     LongArgumentType.getLong(context, "Radius(半径)"),
@@ -86,7 +88,7 @@ public class CommandRegister {
 //                    dispatcher.register(literal(Name)
 //                            .then(argument("Radius(半径)", LongArgumentType.longArg())
 //                                    .then(argument("Origin(随机中心)",EntityArgumentType.player())
-//                                        .requires(source -> source.hasPermissionLevel(4))
+//                                        .requires(source -> source.hasPermissionLevel(PermissionLevel))
 //                                        .executes(context -> execute_command_origin(
 //                                                context.getSource(),
 //                                                LongArgumentType.getLong(context, "Radius(半径)"),
@@ -98,7 +100,7 @@ public class CommandRegister {
                     dispatcher.register(literal(Name)
                             .then(argument("Radius(半径)", LongArgumentType.longArg())
                                     .then(argument("OriginPos(随机中心，坐标)",Vec3ArgumentType.vec3())
-                                            .requires(source -> source.hasPermissionLevel(4))
+                                            .requires(source -> source.hasPermissionLevel(PermissionLevel))
                                             .executes(context -> execute_command(
                                                     context.getSource(),
                                                     LongArgumentType.getLong(context, "Radius(半径)"),
@@ -112,7 +114,7 @@ public class CommandRegister {
                             .then(argument("Radius(半径)", LongArgumentType.longArg())
                                     .then(argument("被传送玩家名(PlayerID)", EntityArgumentType.entity())
                                             .then(argument("OriginEntity(随机中心，实体)",EntityArgumentType.entity())
-                                                    .requires(source -> source.hasPermissionLevel(4))
+                                                    .requires(source -> source.hasPermissionLevel(PermissionLevel))
                                                     .executes(context -> execute_command_origin(
                                                             context.getSource(),
                                                             LongArgumentType.getLong(context, "Radius(半径)"),
@@ -126,7 +128,7 @@ public class CommandRegister {
                             .then(argument("Radius(半径)", LongArgumentType.longArg())
                                     .then(argument("被传送玩家名(PlayerID)", EntityArgumentType.entity())
                                             .then(argument("OriginPos(随机中心，坐标)",Vec3ArgumentType.vec3())
-                                                    .requires(source -> source.hasPermissionLevel(4))
+                                                    .requires(source -> source.hasPermissionLevel(PermissionLevel))
                                                     .executes(context -> execute_command(
                                                             context.getSource(),
                                                             LongArgumentType.getLong(context, "Radius(半径)"),
@@ -140,7 +142,7 @@ public class CommandRegister {
                             .then(argument("被传送玩家名(PlayerID)", EntityArgumentType.entity())
                                     .then(argument("Radius(半径)", LongArgumentType.longArg())
                                             .then(argument("OriginEntity(随机中心，实体)",EntityArgumentType.entity())
-                                                    .requires(source -> source.hasPermissionLevel(4))
+                                                    .requires(source -> source.hasPermissionLevel(PermissionLevel))
                                                     .executes(context -> execute_command_origin(
                                                             context.getSource(),
                                                             LongArgumentType.getLong(context, "Radius(半径)"),
@@ -154,7 +156,7 @@ public class CommandRegister {
                             .then(argument("被传送玩家名(PlayerID)", EntityArgumentType.entity())
                                     .then(argument("Radius(半径)", LongArgumentType.longArg())
                                             .then(argument("OriginPos(随机中心，坐标)",Vec3ArgumentType.vec3())
-                                                    .requires(source -> source.hasPermissionLevel(4))
+                                                    .requires(source -> source.hasPermissionLevel(PermissionLevel))
                                                     .executes(context -> execute_command(
                                                             context.getSource(),
                                                             LongArgumentType.getLong(context, "Radius(半径)"),
@@ -166,9 +168,9 @@ public class CommandRegister {
     static int execute_command(ServerCommandSource Source, @Nullable Long Radius, @Nullable Entity Player, @Nullable Vec3d Origin){
         Entity entity = Player == null ? Source.getPlayer() : Player;
         if (entity == null) {
-            Source.sendFeedback(()->{ return  Text.translatable("error.twd.rtp.not_player"); }, true);
+            Source.sendFeedback(Text.translatable("error.twd.rtp.not_player"), true);
             return -1;}
-        if (Radius == null){Radius = WorldBorder - (long) 1e4;}
+        if (Radius == null){Radius = WorldBoundary - (long) 1e4;}
         Radius = Math.abs(Radius);
         long Coordinate_X;
         long Coordinate_Z;
@@ -186,20 +188,24 @@ public class CommandRegister {
                 ;Coordinate_Y--){}
         if (Blocks.WATER == Source.getWorld().getBlockState(new BlockPos(Math.toIntExact(Coordinate_X), Coordinate_Y, Math.toIntExact(Coordinate_Z))).getBlock() ||
             Blocks.LAVA == Source.getWorld().getBlockState(new BlockPos(Math.toIntExact(Coordinate_X), Coordinate_Y, Math.toIntExact(Coordinate_Z))).getBlock()){
-            Source.getWorld().setBlockState(new BlockPos(Math.toIntExact(Coordinate_X), Coordinate_Y, Math.toIntExact(Coordinate_Z)), Blocks.STONE.getDefaultState());}
+            for (int x = -1; x <= 1; x++) {
+                for (int z = -1; z <= 1; z++) {
+                    Source.getWorld().setBlockState(new BlockPos(Math.toIntExact(Coordinate_X - x), Coordinate_Y, Math.toIntExact(Coordinate_Z - z)), Blocks.GLASS.getDefaultState());}}}
 //        if ( String.valueOf(entity.getWorld().getBiome(new BlockPos(Math.toIntExact(Coordinate_X), Coordinate_Y, Math.toIntExact(Coordinate_Z))).getKey()).equals("minecraft:the_void") ) {
 //            Coordinate_Y++;}
         Coordinate_Y++;
         Vec3d Coordinate = new Vec3d(Coordinate_X, Coordinate_Y, Coordinate_Z);
-        if (Radius == WorldBorder && Retry < 126 && Distance(entity.getPos(), Coordinate) < 1e5){
+        if (Radius == WorldBoundary && Retry < 126 && entity.getPos().distanceTo(Coordinate) < 1e5){
             Retry++;
             execute_command(Source, Radius,null, Origin);
             return 0;}
         if (Retry >= 126){
-            Source.sendFeedback(()->{ return  Text.translatable("warning.twd.rtp.retry"); }, true);}
-        entity.teleport(Coordinate_X, Coordinate_Y, Coordinate_Z);
+            Source.sendFeedback(Text.translatable("warning.twd.rtp.retry"), true);}
+        entity.teleport(Coordinate_X + 0.5, Coordinate_Y, Coordinate_Z + 0.5);
+        final long FinalCoordinate_X = Coordinate_X;
         final int FinalCoordinate_Y = Coordinate_Y;
-        Source.sendFeedback(()->{ return  Text.translatable("info.twd.rtp.success", entity.getName(), Coordinate_X, FinalCoordinate_Y, Coordinate_Z); },true);
+        final long FinalCoordinate_Z = Coordinate_Z;
+        Source.sendFeedback(Text.translatable("info.twd.rtp.success", entity.getName(), FinalCoordinate_X, FinalCoordinate_Y, FinalCoordinate_Z),true);
         return 0;}
     static int execute_command_origin(ServerCommandSource Source, @Nullable Long Radius, @Nullable Entity Player, Entity Origin){
         return execute_command(Source, Radius, Player, Origin.getPos());}
