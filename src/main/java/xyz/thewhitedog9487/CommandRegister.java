@@ -12,6 +12,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashSet;
 import java.util.SplittableRandom;
 
 import static net.minecraft.server.command.CommandManager.argument;
@@ -166,7 +167,7 @@ public class CommandRegister {
     static int execute_command(ServerCommandSource Source, @Nullable Long Radius, @Nullable Entity Player, @Nullable Vec3d Origin){
         Entity entity = Player == null ? Source.getPlayer() : Player;
         if (entity == null) {
-            Source.sendFeedback(()->{ return  Text.translatable("error.twd.rtp.not_player"); }, true);
+            Source.sendFeedback(()->{ return  Text.translatable("error.not_player"); }, true);
             return -1;}
         if (Radius == null){Radius = WorldBorder - (long) 1e4;}
         Radius = Math.abs(Radius);
@@ -198,12 +199,12 @@ public class CommandRegister {
             execute_command(Source, Radius,null, Origin);
             return 0;}
         if (Retry >= 126){
-            Source.sendFeedback(()->{ return  Text.translatable("warning.twd.rtp.retry"); }, true);}
-        entity.teleport(Coordinate_X + 0.5, Coordinate_Y, Coordinate_Z + 0.5);
+            Source.sendFeedback(()->{ return  Text.translatable("warning.retry"); }, true);}
+        entity.teleport(Source.getWorld(),Coordinate_X + 0.5, Coordinate_Y, Coordinate_Z + 0.5, new HashSet<>(), entity.getYaw(), entity.getPitch());
         final long FinalCoordinate_X = Coordinate_X;
         final int FinalCoordinate_Y = Coordinate_Y;
         final long FinalCoordinate_Z = Coordinate_Z;
-        Source.sendFeedback(()->{ return  Text.translatable("info.twd.rtp.success", entity.getName(), FinalCoordinate_X, FinalCoordinate_Y, FinalCoordinate_Z); },true);
+        Source.sendFeedback(()->{ return  Text.translatable("info.success", entity.getName(), FinalCoordinate_X, FinalCoordinate_Y, FinalCoordinate_Z); },true);
         return 0;}
     static int execute_command_origin(ServerCommandSource Source, @Nullable Long Radius, @Nullable Entity Player, Entity Origin){
         return execute_command(Source, Radius, Player, Origin.getPos());}
