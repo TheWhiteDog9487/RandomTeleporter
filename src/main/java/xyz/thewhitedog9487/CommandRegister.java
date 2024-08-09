@@ -20,7 +20,6 @@ import static net.minecraft.server.command.CommandManager.literal;
 
 public class CommandRegister {
     final static long WorldBorder = (long) 2.9e7;
-    static byte Retry = 0;
     static byte PermissionLevel = 2;
     public static void Register(String Name){
         // /rtp
@@ -193,13 +192,6 @@ public class CommandRegister {
 //        if ( String.valueOf(entity.getWorld().getBiome(new BlockPos(Math.toIntExact(Coordinate_X), Coordinate_Y, Math.toIntExact(Coordinate_Z))).getKey()).equals("minecraft:the_void") ) {
 //            Coordinate_Y++;}
         Coordinate_Y++;
-        Vec3d Coordinate = new Vec3d(Coordinate_X, Coordinate_Y, Coordinate_Z);
-        if (Radius == WorldBorder && Retry < 126 && entity.getPos().distanceTo(Coordinate) < 1e5){
-            Retry++;
-            execute_command(Source, Radius,null, Origin);
-            return 0;}
-        if (Retry >= 126){
-            Source.sendFeedback(()->{ return  Text.translatable("warning.retry"); }, true);}
         entity.teleport(Source.getWorld(),Coordinate_X + 0.5, Coordinate_Y, Coordinate_Z + 0.5, new HashSet<>(), entity.getYaw(), entity.getPitch());
         final long FinalCoordinate_X = Coordinate_X;
         final int FinalCoordinate_Y = Coordinate_Y;
