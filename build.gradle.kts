@@ -44,7 +44,9 @@ dependencies {
     // Uncomment the following line to enable the deprecated Fabric API modules. 
     // These are included in the Fabric API production distribution and allow you to update your mod to the latest modules at a later more convenient time.
     // "modImplementation"("net.fabricmc.fabric-api:fabric-api-deprecated:${project.extra["fabric_version"]}")
-    testImplementation("com.terraformersmc:modmenu:${project.extra["modmenu_version"]}")
+
+    // ↓ 开发测试用
+    modRuntimeOnly("com.terraformersmc:modmenu:${project.extra["modmenu_version"]}")
 }
 
 tasks.processResources {
@@ -72,10 +74,15 @@ java {
 tasks.jar {
     from("LICENSE") {
         rename { "${it}_${project.base.archivesName.get()}" } }
-
-    // https://docs.gradle.org/current/dsl/org.gradle.api.tasks.bundling.Jar.html#org.gradle.api.tasks.bundling.Jar:archiveFileName
-    archiveFileName = "${project.base.archivesName.get()}-${project.version} mc${project.extra["minecraft_version"]}.jar"
 }
+
+tasks.remapJar{
+    // https://docs.gradle.org/current/dsl/org.gradle.api.tasks.bundling.Jar.html#org.gradle.api.tasks.bundling.Jar:archiveFileName
+    // 用这个属性设置jar包的文件名格式
+    // 别用上面那个Jar任务的配置，会被remapJar覆盖掉
+    archiveFileName = "${project.base.archivesName.get()}-${project.version} mc${project.extra["minecraft_version"]}.jar"}
+tasks.remapSourcesJar{
+    archiveFileName = "${project.base.archivesName.get()}-${project.version} mc${project.extra["minecraft_version"]}-sources.jar"}
 
 // configure the maven publication
 publishing {
