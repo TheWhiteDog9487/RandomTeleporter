@@ -2,7 +2,6 @@
   "modmenu.nameTranslation.randomteleporter": "随机传送",
   "modmenu.descriptionTranslation.randomteleporter": "增加了两个用于随机传送的命令",
   "info.success": "已将玩家%s传送到%d %d %d",
-  "error.not_player": "执行命令的不是玩家",
-  "bilibili": "TheWhiteDog9487的哔哩哔哩主页",
-  "blog": "TheWhiteDog9487的博客"
+  "error.no_target": "不存在被传送目标，由非玩家物体执行命令时请显式指定被传送玩家ID",
+  "bilibili": "TheWhiteDog9487的哔哩哔哩主页"
 }
