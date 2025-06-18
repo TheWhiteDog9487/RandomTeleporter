@@ -221,14 +221,27 @@ public class CommandRegister {
         if (Radius == null){Radius = (int) (WorldBorder - 1e4);}
         // ↑ 远离世界边界
         Radius = Math.abs(Radius);
-        int Coordinate_X;
-        int Coordinate_Z;
-        if (Origin == null){
-            Coordinate_X = new SplittableRandom().nextInt(-Radius, Radius);
-            Coordinate_Z = new SplittableRandom().nextInt(-Radius, Radius);}
-        else{
-            Coordinate_X = new SplittableRandom().nextInt((int) Origin.x - Radius, (int) Origin.x + Radius);
-            Coordinate_Z = new SplittableRandom().nextInt((int) Origin.y - Radius, (int) Origin.y + Radius);}
+        int Coordinate_X = 0;
+        int Coordinate_Z = 0;
+        try {
+            if (Origin == null){
+                Coordinate_X = new SplittableRandom().nextInt(-Radius, Radius);
+                Coordinate_Z = new SplittableRandom().nextInt(-Radius, Radius);}
+            else{
+                Coordinate_X = new SplittableRandom().nextInt((int) Origin.x - Radius, (int) Origin.x + Radius);
+                Coordinate_Z = new SplittableRandom().nextInt((int) Origin.y - Radius, (int) Origin.y + Radius);}}
+        catch (IllegalArgumentException e) {
+            // 半径为零
+            if (Origin == null) {
+                Source.sendFeedback(()->{ return Text.translatableWithFallback("warning.radius_equal_zero_no_target", "由于你设置的随机半径为0，并且未设置随机中心点坐标，因此什么都不会发生"); },true);
+                return -1;}
+            else {
+                Coordinate_X = (int) Origin.x;
+                Coordinate_Z = (int) Origin.y;
+                int finalCoordinate_X1 = Coordinate_X;
+                int finalCoordinate_Z1 = Coordinate_Z;
+                // ↑ "lambda 表达式中使用的变量应为 final 或有效 final"
+                Source.sendFeedback(()->{ return Text.translatableWithFallback("warning.radius_equal_zero", "警告：由于你设置的随机半径为0，因此在选择出合适高度之后将直接把你传送至%d %d", finalCoordinate_X1, finalCoordinate_Z1); },true);}}
         int Coordinate_Y = 320;
         for (var CurrentBlock = Source.getWorld().getBlockState(new BlockPos(Coordinate_X, Coordinate_Y, Coordinate_Z)).getBlock();
              // 从世界顶层往下找，直到遇到一个非空气方块
@@ -254,9 +267,11 @@ public class CommandRegister {
         Coordinate_Y++;
         // ↑ 高一层，人别站在土里了
         entity.teleport(Source.getWorld(),Coordinate_X + 0.5, Coordinate_Y, Coordinate_Z + 0.5, new HashSet<>(), entity.getYaw(), entity.getPitch(), false);
+        int finalCoordinate_X = Coordinate_X;
         int finalCoordinate_Y = Coordinate_Y;
+        int finalCoordinate_Z = Coordinate_Z;
         // ↑ "lambda 表达式中使用的变量应为 final 或有效 final"
         final var FeedbackFallbackString = String.format("已将玩家%s传送到%d %d %d", entity.getName().getString(), Coordinate_X, finalCoordinate_Y, Coordinate_Z);
-        Source.sendFeedback(()->{ return  Text.translatableWithFallback("info.success", FeedbackFallbackString, entity.getName(), Coordinate_X, finalCoordinate_Y, Coordinate_Z); },true);
+        Source.sendFeedback(()->{ return  Text.translatableWithFallback("info.success", FeedbackFallbackString, entity.getName(), finalCoordinate_X, finalCoordinate_Y, finalCoordinate_Z); },true);
         return 16;}
 }
