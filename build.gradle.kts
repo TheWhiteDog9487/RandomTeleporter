@@ -1,9 +1,9 @@
 plugins {
-    id("fabric-loom") version "1.10-SNAPSHOT"
+    id("fabric-loom") version "1.11-SNAPSHOT"
     id("maven-publish")
 }
 
-version = "${project.extra["mod_version"]}"
+version = project.extra["mod_version"] as String
 group = project.extra["maven_group"] as String
 
 base {
