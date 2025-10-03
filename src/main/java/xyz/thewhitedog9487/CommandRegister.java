@@ -140,8 +140,8 @@ public class CommandRegister {
                                                             context.getSource(),
                                                             IntegerArgumentType.getInteger(context, "Radius(半径)"),
                                                             EntityArgumentType.getEntity(context,"被传送玩家名(PlayerID)"),
-                                                            new Vec2f( (float) EntityArgumentType.getEntity( context,"OriginEntity(随机中心，实体)").getPos().x,
-                                                                    (float) EntityArgumentType.getEntity( context,"OriginEntity(随机中心，实体)").getPos().z )))))));});
+                                                            new Vec2f( (float) EntityArgumentType.getEntity( context,"OriginEntity(随机中心，实体)").getEntityPos().x,
+                                                                    (float) EntityArgumentType.getEntity( context,"OriginEntity(随机中心，实体)").getEntityPos().z )))))));});
 
         // /rtp <Radius(半径)> <被传送玩家名(PlayerID)> <OriginPos(随机中心，坐标)>
         CommandRegistrationCallback.EVENT
@@ -169,8 +169,8 @@ public class CommandRegister {
                                                             context.getSource(),
                                                             IntegerArgumentType.getInteger(context, "Radius(半径)"),
                                                             EntityArgumentType.getEntity(context,"被传送玩家名(PlayerID)"),
-                                                            new Vec2f( (float) EntityArgumentType.getEntity( context,"OriginEntity(随机中心，实体)").getPos().x,
-                                                                    (float) EntityArgumentType.getEntity( context,"OriginEntity(随机中心，实体)").getPos().z )))))));});
+                                                            new Vec2f( (float) EntityArgumentType.getEntity( context,"OriginEntity(随机中心，实体)").getEntityPos().x,
+                                                                    (float) EntityArgumentType.getEntity( context,"OriginEntity(随机中心，实体)").getEntityPos().z )))))));});
 
         // /rtp <被传送玩家名(PlayerID)> <Radius(半径)> <OriginPos(随机中心，坐标)>
         CommandRegistrationCallback.EVENT
