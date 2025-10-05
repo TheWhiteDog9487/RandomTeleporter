@@ -14,12 +14,39 @@ import net.minecraft.util.math.Vec2f;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
+import java.util.Set;
 import java.util.SplittableRandom;
 
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
 public class CommandRegister {
+
+    /**
+     * 随机数生成器
+     */
+    final static SplittableRandom SR = new SplittableRandom();
+
+    /**
+     * 传送后用于生成保护平台的方块
+     */
+    final static Block TargetBlock = Blocks.GLASS;
+
+    /**
+     * 传送后会被 {@link CommandRegister#TargetBlock} 替换掉的方块
+     * <br>
+     * 替换中心：被传送目标脚下方块
+     * <br>
+     * 替换范围：替换中心周围半径为一的正方形区域
+     */
+    final static Set<Block> ReplaceToTargetBlock = Set.of(
+            Blocks.AIR,
+            Blocks.VOID_AIR,
+            Blocks.CAVE_AIR,
+            Blocks.WATER,
+            Blocks.LAVA,
+            Blocks.SHORT_GRASS,
+            Blocks.VINE );
 
     /**
      * 世界边界
@@ -185,11 +212,11 @@ public class CommandRegister {
         int Coordinate_Z = 0;
         try {
             if (Origin == null){
-                Coordinate_X = new SplittableRandom().nextInt(-Radius, Radius);
-                Coordinate_Z = new SplittableRandom().nextInt(-Radius, Radius);}
+                Coordinate_X = SR.nextInt(-Radius, Radius + 1);
+                Coordinate_Z = SR.nextInt(-Radius, Radius + 1); }
             else{
-                Coordinate_X = new SplittableRandom().nextInt((int) Origin.x - Radius, (int) Origin.x + Radius);
-                Coordinate_Z = new SplittableRandom().nextInt((int) Origin.y - Radius, (int) Origin.y + Radius);}}
+                Coordinate_X = SR.nextInt((int) Origin.x - Radius, (int) Origin.x + Radius + 1);
+                Coordinate_Z = SR.nextInt((int) Origin.y - Radius, (int) Origin.y + Radius + 1); } }
         catch (IllegalArgumentException e) {
             // 半径为零
             if (Origin == null) {
@@ -223,6 +250,9 @@ public class CommandRegister {
                         // 只替换空气、水和岩浆，其余保留
                             Source.getWorld().setBlockState(BlockPos, Blocks.GLASS.getDefaultState());}}}
 //        if ( String.valueOf(entity.getWorld().getBiome(new BlockPos(Math.toIntExact(Coordinate_X), Coordinate_Y, Math.toIntExact(Coordinate_Z))).getKey()).equals("minecraft:the_void") ) {
+                if ( ReplaceToTargetBlock.contains(CurrentBlock) ) {
+                    // 只替换ReplaceToTargetBlock内的方块，其余保留
+                    EntityWorld.setBlockState(BlockPos, TargetBlock.getDefaultState());}}}
 //            Coordinate_Y++;}
         Coordinate_Y++;
         // ↑ 高一层，人别站在土里了
