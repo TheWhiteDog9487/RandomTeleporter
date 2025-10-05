@@ -3,14 +3,18 @@ package xyz.thewhitedog9487;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.Vec2ArgumentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec2f;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.ChunkStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
@@ -19,6 +23,7 @@ import java.util.SplittableRandom;
 
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
+import static net.minecraft.world.Heightmap.Type.MOTION_BLOCKING_NO_LEAVES;
 
 public class CommandRegister {
 
@@ -229,36 +234,24 @@ public class CommandRegister {
                 int finalCoordinate_Z1 = Coordinate_Z;
                 // ↑ "lambda 表达式中使用的变量应为 final 或有效 final"
                 Source.sendFeedback(()->{ return Text.translatableWithFallback("warning.radius_equal_zero", "警告：由于你设置的随机半径为0，因此在选择出合适高度之后将直接把你传送至%d %d", finalCoordinate_X1, finalCoordinate_Z1); },true);}}
-        int Coordinate_Y = 320;
-        for (var CurrentBlock = Source.getWorld().getBlockState(new BlockPos(Coordinate_X, Coordinate_Y, Coordinate_Z)).getBlock();
-             // 从世界顶层往下找，直到遇到一个非空气方块
-             Blocks.AIR == CurrentBlock ||
-             Blocks.VOID_AIR == CurrentBlock ||
-             Blocks.CAVE_AIR == CurrentBlock
-                ;CurrentBlock = Source.getWorld().getBlockState(new BlockPos(Coordinate_X, Coordinate_Y, Coordinate_Z)).getBlock()){
-            Coordinate_Y--;}
-            for (int x = -1; x <= 1; x++) {
-                for (int z = -1; z <= 1; z++) {
-                    // 如果传送到的位置周围一圈是空气、水或岩浆，将其替换为玻璃
-                    var BlockPos = new BlockPos(Coordinate_X - x, Coordinate_Y, Coordinate_Z - z);
-                    var CurrentBlock = Source.getWorld().getBlockState(BlockPos).getBlock();
-                    if ( CurrentBlock == Blocks.AIR ||
-                        CurrentBlock == Blocks.VOID_AIR ||
-                        CurrentBlock == Blocks.CAVE_AIR ||
-                        CurrentBlock == Blocks.WATER ||
-                        CurrentBlock == Blocks.LAVA ){
-                        // 只替换空气、水和岩浆，其余保留
-                            Source.getWorld().setBlockState(BlockPos, Blocks.GLASS.getDefaultState());}}}
-//        if ( String.valueOf(entity.getWorld().getBiome(new BlockPos(Math.toIntExact(Coordinate_X), Coordinate_Y, Math.toIntExact(Coordinate_Z))).getKey()).equals("minecraft:the_void") ) {
         World EntityWorld = TargetEntity.getEntityWorld();
-        World EntityWorld = TargetEntity.getEntityWorld();
+        EntityWorld.getChunk(Coordinate_X >> 4, Coordinate_Z >> 4, ChunkStatus.FULL, true);
+        // ↑ 加载目标区块，不然下面获取到的Coordinate_Y一定是-64
+        // 必须是 >> 4 ，不能是 / 16
+        int Coordinate_Y = EntityWorld.getTopY(MOTION_BLOCKING_NO_LEAVES, Coordinate_X, Coordinate_Z);
+        BlockPos.Mutable BlockPos = new BlockPos.Mutable();
+        for (int x = -1; x <= 1; x++) {
+            for (int z = -1; z <= 1; z++) {
+                // 如果传送到的位置周围一圈是ReplaceToTargetBlock的方块，将其替换为TargetBlock
+                BlockPos.set(Coordinate_X - x, Coordinate_Y - 1, Coordinate_Z - z);
+                var CurrentBlock = EntityWorld.getBlockState(BlockPos).getBlock();
                 if ( ReplaceToTargetBlock.contains(CurrentBlock) ) {
                     // 只替换ReplaceToTargetBlock内的方块，其余保留
                     EntityWorld.setBlockState(BlockPos, TargetBlock.getDefaultState());}}}
+//        if ( String.valueOf(TargetEntity.getWorld().getBiome(new BlockPos(Math.toIntExact(Coordinate_X), Coordinate_Y, Math.toIntExact(Coordinate_Z))).getKey()).equals("minecraft:the_void") ) {
 //            Coordinate_Y++;}
         TargetEntity.teleport((ServerWorld) EntityWorld,Coordinate_X + 0.5, Coordinate_Y, Coordinate_Z + 0.5, new HashSet<>(), TargetEntity.getYaw(), TargetEntity.getPitch(), false);
         int finalCoordinate_X = Coordinate_X;
-        int finalCoordinate_Y = Coordinate_Y;
         int finalCoordinate_Z = Coordinate_Z;
         // ↑ "lambda 表达式中使用的变量应为 final 或有效 final"
         final var FeedbackFallbackString = String.format("已将玩家%s传送到%d %d %d", TargetEntity.getName().getString(), Coordinate_X, Coordinate_Y, Coordinate_Z);
