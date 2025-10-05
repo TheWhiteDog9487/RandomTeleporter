@@ -189,21 +189,21 @@ public class CommandRegister {
      *
      * @param Source 命令执行者
      * @param Radius 随机选择的目的坐标距离参数 {@code Origin} 的最大距离
-     * @param Player 被传送的玩家
+     * @param Entity 被传送的实体
      * @param Origin 随机选择的目的坐标的中心
      * @return 命令运行是否成功
      */
-    static int execute_command(ServerCommandSource Source, @Nullable Integer Radius, @Nullable Entity Player, @Nullable Vec2f Origin){
-        Entity entity = Player == null ? Source.getPlayer() : Player;
+    static int ExecuteCommand(ServerCommandSource Source, @Nullable Integer Radius, @Nullable Entity Entity, @Nullable Vec2f Origin){
+        Entity TargetEntity = Entity == null ? Source.getPlayer() : Entity;
         /*
             ↑
-            Entity entity = null;
-            if (Player == null){
-                entity = Source.getPlayer();}
+            Entity TargetEntity = null;
+            if (TargetEntity == null){
+                TargetEntity = Source.getPlayer();}
             else{
-                entity = Player;}
+                TargetEntity = Entity;}
          */
-        if (entity == null) {
+        if (TargetEntity == null) {
             Source.sendFeedback(()->{ return  Text.translatableWithFallback("error.no_target","不存在被传送目标，由非玩家物体执行命令时请显式指定被传送玩家ID"); }, true);
             return -1;}
         if (Radius == null){Radius = (int) (WorldBorder - 1e4);}
@@ -250,13 +250,13 @@ public class CommandRegister {
                         // 只替换空气、水和岩浆，其余保留
                             Source.getWorld().setBlockState(BlockPos, Blocks.GLASS.getDefaultState());}}}
 //        if ( String.valueOf(entity.getWorld().getBiome(new BlockPos(Math.toIntExact(Coordinate_X), Coordinate_Y, Math.toIntExact(Coordinate_Z))).getKey()).equals("minecraft:the_void") ) {
+        World EntityWorld = TargetEntity.getEntityWorld();
+        World EntityWorld = TargetEntity.getEntityWorld();
                 if ( ReplaceToTargetBlock.contains(CurrentBlock) ) {
                     // 只替换ReplaceToTargetBlock内的方块，其余保留
                     EntityWorld.setBlockState(BlockPos, TargetBlock.getDefaultState());}}}
 //            Coordinate_Y++;}
-        Coordinate_Y++;
-        // ↑ 高一层，人别站在土里了
-        entity.teleport(Source.getWorld(),Coordinate_X + 0.5, Coordinate_Y, Coordinate_Z + 0.5, new HashSet<>(), entity.getYaw(), entity.getPitch(), false);
+        TargetEntity.teleport((ServerWorld) EntityWorld,Coordinate_X + 0.5, Coordinate_Y, Coordinate_Z + 0.5, new HashSet<>(), TargetEntity.getYaw(), TargetEntity.getPitch(), false);
         int finalCoordinate_X = Coordinate_X;
         int finalCoordinate_Y = Coordinate_Y;
         int finalCoordinate_Z = Coordinate_Z;
