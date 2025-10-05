@@ -24,6 +24,7 @@ import java.util.SplittableRandom;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 import static net.minecraft.world.Heightmap.Type.MOTION_BLOCKING_NO_LEAVES;
+import static xyz.thewhitedog9487.ResourceReloaderListener.*;
 
 public class CommandRegister {
 
@@ -77,6 +78,7 @@ public class CommandRegister {
      * @see <a href="https://wiki.fabricmc.net/tutorial:commands">Fabric Wiki (Old style,English)</a>
      */
     public static void Register(String Name){
+
         CommandRegistrationCallback.EVENT
                 .register((dispatcher, registryAccess, environment) ->{
                     dispatcher.register(literal(Name)
@@ -85,38 +87,38 @@ public class CommandRegister {
                             .executes(context -> ExecuteCommand(
                                     context.getSource(),null,null, null))
                             // /rtp <Radius(半径)>
-                            .then(argument("Radius(半径)", IntegerArgumentType.integer(0))
+                            .then(argument(CommandArgumentName_Radius, IntegerArgumentType.integer(0))
                                     .requires(source -> source.hasPermissionLevel(PermissionLevel))
                                     .executes(context -> ExecuteCommand(
                                             context.getSource(),
-                                            IntegerArgumentType.getInteger(context, "Radius(半径)"),
+                                            IntegerArgumentType.getInteger(context, CommandArgumentName_Radius),
                                             null,
                                             null)))
                             // /rtp <被传送玩家名(PlayerID)>
-                            .then(argument("被传送玩家名(PlayerID)", EntityArgumentType.entity())
+                            .then(argument(CommandArgumentName_Target, EntityArgumentType.entity())
                                     .requires(source -> source.hasPermissionLevel(PermissionLevel))
                                     .executes(context -> ExecuteCommand(
                                             context.getSource(),
                                             null,
-                                            EntityArgumentType.getEntity(context,"被传送玩家名(PlayerID)"),
+                                            EntityArgumentType.getEntity(context,CommandArgumentName_Target),
                                             null)))
                             // /rtp <Radius(半径)> <被传送玩家名(PlayerID)>
-                            .then(argument("Radius(半径)", IntegerArgumentType.integer(0))
-                                    .then(argument("被传送玩家名(PlayerID)", EntityArgumentType.entity())
+                            .then(argument(CommandArgumentName_Radius, IntegerArgumentType.integer(0))
+                                    .then(argument(CommandArgumentName_Target, EntityArgumentType.entity())
                                             .requires(source -> source.hasPermissionLevel(PermissionLevel))
                                             .executes(context -> ExecuteCommand(
                                                     context.getSource(),
-                                                    IntegerArgumentType.getInteger(context, "Radius(半径)"),
-                                                    EntityArgumentType.getEntity(context,"被传送玩家名(PlayerID)"),
+                                                    IntegerArgumentType.getInteger(context, CommandArgumentName_Radius),
+                                                    EntityArgumentType.getEntity(context,CommandArgumentName_Target),
                                                     null))))
                             // /rtp <被传送玩家名(PlayerID)> <Radius(半径)>
-                            .then(argument("被传送玩家名(PlayerID)", EntityArgumentType.entity())
-                                    .then(argument("Radius(半径)", IntegerArgumentType.integer(0))
+                            .then(argument(CommandArgumentName_Target, EntityArgumentType.entity())
+                                    .then(argument(CommandArgumentName_Radius, IntegerArgumentType.integer(0))
                                             .requires(source -> source.hasPermissionLevel(PermissionLevel))
                                             .executes(context -> ExecuteCommand(
                                                     context.getSource(),
-                                                    IntegerArgumentType.getInteger(context, "Radius(半径)"),
-                                                    EntityArgumentType.getEntity(context,"被传送玩家名(PlayerID)"),
+                                                    IntegerArgumentType.getInteger(context, CommandArgumentName_Radius),
+                                                    EntityArgumentType.getEntity(context,CommandArgumentName_Target),
                                                     null))))
 //                          // /rtp <Radius(半径)> <Origin(随机中心)>
 //                          .then(argument("Radius(半径)", LongArgumentType.longArg())
@@ -128,56 +130,56 @@ public class CommandRegister {
 //                                                  null,
 //                                                  EntityArgumentType.getEntity(context,"Origin(随机中心)")))))
                             // /rtp <Radius(半径)> <OriginPos(随机中心，坐标)>
-                            .then(argument("Radius(半径)", IntegerArgumentType.integer(0))
-                                    .then(argument("OriginPos(随机中心，坐标)",Vec2ArgumentType.vec2())
+                            .then(argument(CommandArgumentName_Radius, IntegerArgumentType.integer(0))
+                                    .then(argument(CommandArgumentName_OriginPosition,Vec2ArgumentType.vec2())
                                             .requires(source -> source.hasPermissionLevel(PermissionLevel))
                                             .executes(context -> ExecuteCommand(
                                                     context.getSource(),
-                                                    IntegerArgumentType.getInteger(context, "Radius(半径)"),
+                                                    IntegerArgumentType.getInteger(context, CommandArgumentName_Radius),
                                                     null,
-                                                    Vec2ArgumentType.getVec2(context,"OriginPos(随机中心，坐标)")))))
+                                                    Vec2ArgumentType.getVec2(context,CommandArgumentName_OriginPosition)))))
                             // /rtp <Radius(半径)> <被传送玩家名(PlayerID)> <OriginEntity(随机中心，实体)>
-                            .then(argument("Radius(半径)", IntegerArgumentType.integer(0))
-                                    .then(argument("被传送玩家名(PlayerID)", EntityArgumentType.entity())
-                                            .then(argument("OriginEntity(随机中心，实体)",EntityArgumentType.entity())
+                            .then(argument(CommandArgumentName_Radius, IntegerArgumentType.integer(0))
+                                    .then(argument(CommandArgumentName_Target, EntityArgumentType.entity())
+                                            .then(argument(CommandArgumentName_OriginEntity,EntityArgumentType.entity())
                                                     .requires(source -> source.hasPermissionLevel(PermissionLevel))
                                                     .executes(context -> ExecuteCommand(
                                                             context.getSource(),
-                                                            IntegerArgumentType.getInteger(context, "Radius(半径)"),
-                                                            EntityArgumentType.getEntity(context,"被传送玩家名(PlayerID)"),
-                                                            new Vec2f( (float) EntityArgumentType.getEntity( context,"OriginEntity(随机中心，实体)").getEntityPos().x,
-                                                                    (float) EntityArgumentType.getEntity( context,"OriginEntity(随机中心，实体)").getEntityPos().z ))))))
+                                                            IntegerArgumentType.getInteger(context, CommandArgumentName_Radius),
+                                                            EntityArgumentType.getEntity(context,CommandArgumentName_Target),
+                                                            new Vec2f( (float) EntityArgumentType.getEntity( context,CommandArgumentName_OriginEntity).getEntityPos().x,
+                                                                    (float) EntityArgumentType.getEntity( context,CommandArgumentName_OriginEntity).getEntityPos().z ))))))
                            // /rtp <Radius(半径)> <被传送玩家名(PlayerID)> <OriginPos(随机中心，坐标)>
-                           .then(argument("Radius(半径)", IntegerArgumentType.integer(0))
-                                   .then(argument("被传送玩家名(PlayerID)", EntityArgumentType.entity())
-                                           .then(argument("OriginPos(随机中心，坐标)",Vec2ArgumentType.vec2())
+                           .then(argument(CommandArgumentName_Radius, IntegerArgumentType.integer(0))
+                                   .then(argument(CommandArgumentName_Target, EntityArgumentType.entity())
+                                           .then(argument(CommandArgumentName_OriginPosition,Vec2ArgumentType.vec2())
                                                    .requires(source -> source.hasPermissionLevel(PermissionLevel))
                                                    .executes(context -> ExecuteCommand(
                                                            context.getSource(),
-                                                           IntegerArgumentType.getInteger(context, "Radius(半径)"),
-                                                           EntityArgumentType.getEntity(context,"被传送玩家名(PlayerID)"),
-                                                           Vec2ArgumentType.getVec2(context,"OriginPos(随机中心，坐标)"))))))
+                                                           IntegerArgumentType.getInteger(context, CommandArgumentName_Radius),
+                                                           EntityArgumentType.getEntity(context,CommandArgumentName_Target),
+                                                           Vec2ArgumentType.getVec2(context,CommandArgumentName_OriginPosition))))))
                            // /rtp <被传送玩家名(PlayerID)> <Radius(半径)> <OriginEntity(随机中心，实体)>
-                           .then(argument("被传送玩家名(PlayerID)", EntityArgumentType.entity())
-                                   .then(argument("Radius(半径)", IntegerArgumentType.integer(0))
-                                           .then(argument("OriginEntity(随机中心，实体)",EntityArgumentType.entity())
+                           .then(argument(CommandArgumentName_Target, EntityArgumentType.entity())
+                                   .then(argument(CommandArgumentName_Radius, IntegerArgumentType.integer(0))
+                                           .then(argument(CommandArgumentName_OriginEntity,EntityArgumentType.entity())
                                                    .requires(source -> source.hasPermissionLevel(PermissionLevel))
                                                    .executes(context -> ExecuteCommand(
                                                            context.getSource(),
-                                                           IntegerArgumentType.getInteger(context, "Radius(半径)"),
-                                                           EntityArgumentType.getEntity(context,"被传送玩家名(PlayerID)"),
-                                                           new Vec2f( (float) EntityArgumentType.getEntity( context,"OriginEntity(随机中心，实体)").getEntityPos().x,
-                                                                   (float) EntityArgumentType.getEntity( context,"OriginEntity(随机中心，实体)").getEntityPos().z ))))))
+                                                           IntegerArgumentType.getInteger(context, CommandArgumentName_Radius),
+                                                           EntityArgumentType.getEntity(context,CommandArgumentName_Target),
+                                                           new Vec2f( (float) EntityArgumentType.getEntity( context,CommandArgumentName_OriginEntity).getEntityPos().x,
+                                                                   (float) EntityArgumentType.getEntity( context,CommandArgumentName_OriginEntity).getEntityPos().z ))))))
                            // /rtp <被传送玩家名(PlayerID)> <Radius(半径)> <OriginPos(随机中心，坐标)>
-                           .then(argument("被传送玩家名(PlayerID)", EntityArgumentType.entity())
-                                   .then(argument("Radius(半径)", IntegerArgumentType.integer(0))
-                                           .then(argument("OriginPos(随机中心，坐标)",Vec2ArgumentType.vec2())
+                           .then(argument(CommandArgumentName_Target, EntityArgumentType.entity())
+                                   .then(argument(CommandArgumentName_Radius, IntegerArgumentType.integer(0))
+                                           .then(argument(CommandArgumentName_OriginPosition,Vec2ArgumentType.vec2())
                                                    .requires(source -> source.hasPermissionLevel(PermissionLevel))
                                                    .executes(context -> ExecuteCommand(
                                                            context.getSource(),
-                                                           IntegerArgumentType.getInteger(context, "Radius(半径)"),
-                                                           EntityArgumentType.getEntity(context,"被传送玩家名(PlayerID)"),
-                                                           Vec2ArgumentType.getVec2(context,"OriginPos(随机中心，坐标)")))))) );});}
+                                                           IntegerArgumentType.getInteger(context, CommandArgumentName_Radius),
+                                                           EntityArgumentType.getEntity(context,CommandArgumentName_Target),
+                                                           Vec2ArgumentType.getVec2(context,CommandArgumentName_OriginPosition)))))) );});}
 
     /**
      * 向游戏内注册命令

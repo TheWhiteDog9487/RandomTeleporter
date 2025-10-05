@@ -5,5 +5,9 @@
   "error.no_target": "There is no teleported target, and the teleported player ID is explicitly specified when executed by a non-player object",
   "warning.radius_equal_zero": "Warning: Since you set a random radius of 0, selecting the right height will teleport you directly to %d %d",
   "warning.radius_equal_zero_no_target": "Warning: Since you set a random radius of 0 and you don't set a random center point coordinates, nothing happens",
-  "bilibili": "Bilibili"
+  "bilibili": "Bilibili",
+  "command.argument.radius": "radius",
+  "command.argument.target": "teleported entity",
+  "command.argument.origin_pos": "origin(pos)",
+  "command.argument.origin_entity": "origin(entity)"
 }

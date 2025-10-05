@@ -5,5 +5,9 @@
   "error.no_target": "不存在被传送目标，由非玩家物体执行命令时请显式指定被传送玩家ID",
   "warning.radius_equal_zero": "警告：由于你设置的随机半径为0，因此在选择出合适高度之后将直接把你传送至%d %d",
   "warning.radius_equal_zero_no_target": "警告：由于你设置的随机半径为0，并且未设置随机中心点坐标，因此什么都不会发生",
-  "bilibili": "TheWhiteDog9487的哔哩哔哩主页"
+  "bilibili": "TheWhiteDog9487的哔哩哔哩主页",
+  "command.argument.radius": "半径",
+  "command.argument.target": "被传送实体",
+  "command.argument.origin_pos": "随机中心（坐标）",
+  "command.argument.origin_entity": "随机中心（实体）"
 }
