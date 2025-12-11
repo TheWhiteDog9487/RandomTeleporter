@@ -1,5 +1,5 @@
 plugins {
-    id("fabric-loom") version "1.11-SNAPSHOT"
+    id("fabric-loom") version "1.14-SNAPSHOT"
     id("maven-publish")
 }
 
@@ -25,10 +25,9 @@ loom {
     splitEnvironmentSourceSets()
 
     mods {
-        create("randomteleporter") {
-            sourceSet(sourceSets["main"])
-            sourceSet(sourceSets["client"])
-        }
+        val mod = create("randomteleporter")
+        mod.sourceSet("main")
+        mod.sourceSet("client")
     }
 }
 
