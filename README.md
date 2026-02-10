@@ -4,14 +4,14 @@
 # 命令格式
 - /rtp
 - /rtp <Radius(半径)>
-- /rtp <被传送玩家名(PlayerID)>
-- /rtp <Radius(半径)> <被传送玩家名(PlayerID)>
-- /rtp <被传送玩家名(PlayerID)> <Radius(半径)>
+- /rtp <PlayerID(被传送玩家名)>
+- /rtp <Radius(半径)> <PlayerID(被传送玩家名)>
+- /rtp <PlayerID(被传送玩家名)> <Radius(半径)>
 - /rtp <Radius(半径)> <OriginPos(随机中心，坐标)>
-- /rtp <Radius(半径)> <被传送玩家名(PlayerID)> <OriginEntity(随机中心，实体)>
-- /rtp <Radius(半径)> <被传送玩家名(PlayerID)> <OriginPos(随机中心，坐标)>
-- /rtp <被传送玩家名(PlayerID)> <Radius(半径)> <OriginEntity(随机中心，实体)>
-- /rtp <被传送玩家名(PlayerID)> <Radius(半径)> <OriginPos(随机中心，坐标)>
+- /rtp <Radius(半径)> <PlayerID(被传送玩家名)> <OriginEntity(随机中心，实体)>
+- /rtp <Radius(半径)> <PlayerID(被传送玩家名)> <OriginPos(随机中心，坐标)>
+- /rtp <PlayerID(被传送玩家名)> <Radius(半径)> <OriginEntity(随机中心，实体)>
+- /rtp <PlayerID(被传送玩家名)> <Radius(半径)> <OriginPos(随机中心，坐标)>
 
 ## 命令示例
 - /rtp  

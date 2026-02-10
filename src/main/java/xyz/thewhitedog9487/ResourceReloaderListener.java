@@ -13,7 +13,7 @@ import static xyz.thewhitedog9487.RandomTeleporter.MOD_ID;
  */
 public class ResourceReloaderListener {
     public static String CommandArgumentName_Radius = "Radius(半径)";
-    public static String CommandArgumentName_Target = "被传送玩家名(PlayerID)";
+    public static String CommandArgumentName_Target = "PlayerID(被传送玩家名)";
     public static String CommandArgumentName_OriginPosition = "OriginPos(随机中心，坐标)";
     public static String CommandArgumentName_OriginEntity = "OriginEntity(随机中心，实体)";
 
@@ -29,6 +29,6 @@ public class ResourceReloaderListener {
             @Override
             protected void apply(Void prepared, SharedState store) {
                 CommandArgumentName_Radius = Component.translatableWithFallback("command.argument.radius", "Radius(半径)").getString();
-                CommandArgumentName_Target = Component.translatableWithFallback("command.argument.target", "被传送玩家名(PlayerID)").getString();
+                CommandArgumentName_Target = Component.translatableWithFallback("command.argument.target", "PlayerID(被传送玩家名)").getString();
                 CommandArgumentName_OriginPosition = Component.translatableWithFallback("command.argument.origin_pos", "OriginPos(随机中心，坐标)").getString();
                 CommandArgumentName_OriginEntity = Component.translatableWithFallback("command.argument.origin_entity", "OriginEntity(随机中心，实体)").getString(); } } ); } }

@@ -97,7 +97,7 @@ public class CommandRegister {
                                             IntegerArgumentType.getInteger(context, CommandArgumentName_Radius),
                                             null,
                                             null)))
-                            // /rtp <被传送玩家名(PlayerID)>
+                            // /rtp <PlayerID(被传送玩家名)>
                             .then(argument(CommandArgumentName_Target, EntityArgument.entity())
                                     .requires(Commands.hasPermission(PermissionLevel))
                                     .executes(context -> ExecuteCommand(
@@ -105,7 +105,7 @@ public class CommandRegister {
                                             null,
                                             EntityArgument.getEntity(context,CommandArgumentName_Target),
                                             null)))
-                            // /rtp <Radius(半径)> <被传送玩家名(PlayerID)>
+                            // /rtp <Radius(半径)> <PlayerID(被传送玩家名)>
                             .then(argument(CommandArgumentName_Radius, IntegerArgumentType.integer(0))
                                     .then(argument(CommandArgumentName_Target, EntityArgument.entity())
                                             .requires(Commands.hasPermission(PermissionLevel))
@@ -114,7 +114,7 @@ public class CommandRegister {
                                                     IntegerArgumentType.getInteger(context, CommandArgumentName_Radius),
                                                     EntityArgument.getEntity(context,CommandArgumentName_Target),
                                                     null))))
-                            // /rtp <被传送玩家名(PlayerID)> <Radius(半径)>
+                            // /rtp <PlayerID(被传送玩家名)> <Radius(半径)>
                             .then(argument(CommandArgumentName_Target, EntityArgument.entity())
                                     .then(argument(CommandArgumentName_Radius, IntegerArgumentType.integer(0))
                                             .requires(Commands.hasPermission(PermissionLevel))
@@ -142,6 +142,7 @@ public class CommandRegister {
                                                     null,
                                                     Vec2Argument.getVec2(context,CommandArgumentName_OriginPosition)))))
                             // /rtp <Radius(半径)> <被传送玩家名(PlayerID)> <OriginEntity(随机中心，实体)>
+                            // /rtp <Radius(半径)> <PlayerID(被传送玩家名)> <OriginEntity(随机中心，实体)>
                             .then(argument(CommandArgumentName_Radius, IntegerArgumentType.integer(0))
                                     .then(argument(CommandArgumentName_Target, EntityArgument.entity())
                                             .then(argument(CommandArgumentName_OriginEntity, EntityArgument.entity())
@@ -153,6 +154,7 @@ public class CommandRegister {
                                                             new Vec2( (float) EntityArgument.getEntity( context,CommandArgumentName_OriginEntity).position().x,
                                                                     (float) EntityArgument.getEntity( context,CommandArgumentName_OriginEntity).position().z ))))))
                            // /rtp <Radius(半径)> <被传送玩家名(PlayerID)> <OriginPos(随机中心，坐标)>
+                           // /rtp <Radius(半径)> <PlayerID(被传送玩家名)> <OriginPos(随机中心，坐标)>
                            .then(argument(CommandArgumentName_Radius, IntegerArgumentType.integer(0))
                                    .then(argument(CommandArgumentName_Target, EntityArgument.entity())
                                            .then(argument(CommandArgumentName_OriginPosition, Vec2Argument.vec2())
@@ -163,6 +165,7 @@ public class CommandRegister {
                                                            EntityArgument.getEntity(context,CommandArgumentName_Target),
                                                            Vec2Argument.getVec2(context,CommandArgumentName_OriginPosition))))))
                            // /rtp <被传送玩家名(PlayerID)> <Radius(半径)> <OriginEntity(随机中心，实体)>
+                           // /rtp <PlayerID(被传送玩家名)> <Radius(半径)> <OriginEntity(随机中心，实体)>
                            .then(argument(CommandArgumentName_Target, EntityArgument.entity())
                                    .then(argument(CommandArgumentName_Radius, IntegerArgumentType.integer(0))
                                            .then(argument(CommandArgumentName_OriginEntity, EntityArgument.entity())
@@ -174,6 +177,7 @@ public class CommandRegister {
                                                            new Vec2( (float) EntityArgument.getEntity( context,CommandArgumentName_OriginEntity).position().x,
                                                                    (float) EntityArgument.getEntity( context,CommandArgumentName_OriginEntity).position().z ))))))
                            // /rtp <被传送玩家名(PlayerID)> <Radius(半径)> <OriginPos(随机中心，坐标)>
+                           // /rtp <PlayerID(被传送玩家名)> <Radius(半径)> <OriginPos(随机中心，坐标)>
                            .then(argument(CommandArgumentName_Target, EntityArgument.entity())
                                    .then(argument(CommandArgumentName_Radius, IntegerArgumentType.integer(0))
                                            .then(argument(CommandArgumentName_OriginPosition, Vec2Argument.vec2())
