@@ -9,5 +9,9 @@
   "command.argument.radius": "半径",
   "command.argument.target": "被传送实体",
   "command.argument.origin_pos": "随机中心（坐标）",
-  "command.argument.origin_entity": "随机中心（实体）"
+  "command.argument.origin_entity": "随机中心（实体）",
+  "command.argument.region_from_pos": "坐标选取区域起点（坐标）",
+  "command.argument.region_to_pos": "坐标选取区域终点（坐标）",
+  "command.argument.region_from_entity": "坐标选取区域起点（实体）",
+  "command.argument.region_to_entity": "坐标选取区域终点（实体）"
 }

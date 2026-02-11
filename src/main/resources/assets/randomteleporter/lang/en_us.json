@@ -9,5 +9,9 @@
   "command.argument.radius": "radius",
   "command.argument.target": "teleported entity",
   "command.argument.origin_pos": "origin(pos)",
-  "command.argument.origin_entity": "origin(entity)"
+  "command.argument.origin_entity": "origin(entity)",
+  "command.argument.region_from_pos": "region start(pos)",
+  "command.argument.region_to_pos": "region end(pos)",
+  "command.argument.region_from_entity": "region start(entity)",
+  "command.argument.region_to_entity": "region end(entity)"
 }
