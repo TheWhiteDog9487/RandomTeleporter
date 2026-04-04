@@ -27,10 +27,10 @@
 		}
 	],
 	"depends": {
-		"fabricloader": ">=0.18.4",
-		"minecraft": "26.1",
+		"fabricloader": ">=0.18.6",
+		"minecraft": "26.1.1",
 		"java": ">=25",
-		"fabric-api": ">=0.144.3"
+		"fabric-api": ">=0.145.3"
 	},
 	"suggests": {
 		"another-mod": "*"
@@ -39,5 +39,5 @@
 		"modmenu": {
 			"links": {
 				"bilibili": "https://space.bilibili.com/401746666"},
-			"update_checker": true}}
+			"update_checker": true } }
 }

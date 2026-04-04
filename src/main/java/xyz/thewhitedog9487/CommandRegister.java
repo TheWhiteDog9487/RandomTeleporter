@@ -18,11 +18,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.SplittableRandom;
+import module java.base;
 
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
@@ -68,20 +67,34 @@ public class CommandRegister {
     /**
      * 执行命令所需权限等级
      * @see TeleportCommand
+     * @see Commands
+     * @see <a href="https://zh.minecraft.wiki/w/%E6%9D%83%E9%99%90%E7%AD%89%E7%BA%A7">Minecraft Wiki (中文)</a>
+     * @see <a href="https://minecraft.wiki/w/Permission_level">Minecraft Wiki (English)</a>
      */
     final static PermissionCheck PermissionLevel = Commands.LEVEL_GAMEMASTERS;
+
+    /**
+     * 在传送之前记录当前位置，以支持传送回去
+     */
+    static Map<UUID, Vec3> OldPositions = new HashMap<>();
+
+    /**
+     * 命令执行失败时的返回值
+     * @see <a href="https://zh.minecraft.wiki/w/%E5%91%BD%E4%BB%A4#%E7%BB%93%E6%9E%9C">Minecraft Wiki (中文)</a>
+     * @see <a href="https://minecraft.wiki/w/Commands">Minecraft Wiki (English)</a>
+     */
+    final static int CommandExecuteFailure = 0;
 
     /**
      * 使用Fabric API向游戏内注册命令
      * @param Name 根命令名
      * <br>
-     * @see <a href="https://docs.fabricmc.net/zh_cn/develop/commands/basics">Fabric Wiki (新样式，中文)</a>
-     * @see <a href="https://wiki.fabricmc.net/zh_cn:tutorial:commands">Fabric Wiki (旧样式，中文)</a>
-     * @see <a href="https://docs.fabricmc.net/develop/commands/basics">Fabric Wiki (New style,English)</a>
-     * @see <a href="https://wiki.fabricmc.net/tutorial:commands">Fabric Wiki (Old style,English)</a>
+     * @see <a href="https://docs.fabricmc.net/zh_cn/develop/commands/basics">Fabric Docs (中文)</a>
+     * @see <a href="https://wiki.fabricmc.net/zh_cn:tutorial:commands">Fabric Wiki (中文)</a>
+     * @see <a href="https://docs.fabricmc.net/develop/commands/basics">Fabric Docs (English)</a>
+     * @see <a href="https://wiki.fabricmc.net/tutorial:commands">Fabric Wiki (English)</a>
      */
     public static void Register(String Name){
-
         CommandRegistrationCallback.EVENT
                 .register((dispatcher, registryAccess, environment) ->{
                     dispatcher.register(literal(Name)
@@ -89,6 +102,25 @@ public class CommandRegister {
                             .requires(Commands.hasPermission(PermissionLevel))
                             .executes(context -> ExecuteCommand(
                                     context.getSource(),null,null, null, null, null))
+                            // /rtp back
+                            .then(literal("back")
+                                    .requires(Commands.hasPermission(PermissionLevel))
+                                    .executes(context -> TeleportBack(
+                                            context.getSource(), null)))
+                            // /rtp back <PlayerID(被传送玩家名)>
+                            .then(literal("back")
+                                    .then(argument(CommandArgumentName_Target, EntityArgument.entity())
+                                            .requires(Commands.hasPermission(PermissionLevel))
+                                            .executes(context -> TeleportBack(
+                                                    context.getSource(),
+                                                    EntityArgument.getEntity(context,CommandArgumentName_Target)))))
+                            // /rtp <PlayerID(被传送玩家名)> back
+                            .then(argument(CommandArgumentName_Target, EntityArgument.entity())
+                                    .then(literal("back")
+                                            .requires(Commands.hasPermission(PermissionLevel))
+                                            .executes(context -> TeleportBack(
+                                                    context.getSource(),
+                                                    EntityArgument.getEntity(context,CommandArgumentName_Target)))))
                             // /rtp <Radius(半径)>
                             .then(argument(CommandArgumentName_Radius, IntegerArgumentType.integer(0))
                                     .requires(Commands.hasPermission(PermissionLevel))
@@ -297,7 +329,7 @@ public class CommandRegister {
          */
         if (TargetEntity == null) {
             Source.sendSuccess(()->{ return  Component.translatableWithFallback("error.no_target","不存在被传送目标，由非玩家物体执行命令时请显式指定被传送玩家ID"); }, true);
-            return -1; }
+            return CommandExecuteFailure; }
         int Coordinate_X = 0;
         int Coordinate_Z = 0;
         if (RegionFrom == null || RegionTo == null) { // ← 按半径和中心取随机
@@ -313,9 +345,8 @@ public class CommandRegister {
             catch (IllegalArgumentException e) {
                 // 半径为零
                 if (Origin == null) {
-                    Source.sendSuccess(() -> {
-                        return Component.translatableWithFallback("warning.radius_equal_zero_no_target", "由于你设置的随机半径为0，并且未设置随机中心点坐标，因此什么都不会发生"); }, true);
-                    return -1; }
+                    Source.sendFailure(Component.translatableWithFallback("warning.radius_equal_zero_no_target", "由于你设置的随机半径为0，并且未设置随机中心点坐标，因此什么都不会发生"));
+                    return CommandExecuteFailure; }
                 else {
                     Coordinate_X = (int) Origin.x;
                     Coordinate_Z = (int) Origin.y;
@@ -349,6 +380,7 @@ public class CommandRegister {
                     EntityWorld.setBlockAndUpdate(BlockPos, TargetBlock.defaultBlockState());}}}
 //        if ( String.valueOf(TargetEntity.getWorld().getBiome(new BlockPos(Math.toIntExact(Coordinate_X), Coordinate_Y, Math.toIntExact(Coordinate_Z))).getKey()).equals("minecraft:the_void") ) {
 //            Coordinate_Y++;}
+        OldPositions.put(TargetEntity.getUUID(), TargetEntity.position());
         TargetEntity.teleportTo((ServerLevel) EntityWorld,Coordinate_X + 0.5, Coordinate_Y, Coordinate_Z + 0.5, new HashSet<>(), TargetEntity.getYRot(), TargetEntity.getXRot(), false);
         int finalCoordinate_X = Coordinate_X;
         int finalCoordinate_Z = Coordinate_Z;
@@ -356,4 +388,25 @@ public class CommandRegister {
         final var FeedbackFallbackString = String.format("已将玩家%s传送到%d %d %d", TargetEntity.getName().getString(), Coordinate_X, Coordinate_Y, Coordinate_Z);
         Source.sendSuccess(()->{ return  Component.translatableWithFallback("info.success", FeedbackFallbackString, TargetEntity.getName(), finalCoordinate_X, Coordinate_Y, finalCoordinate_Z); },true);
         return Command.SINGLE_SUCCESS; }
+
+    static int TeleportBack(CommandSourceStack Source, @Nullable Entity TargetEntity) {
+        TargetEntity = TargetEntity != null ? TargetEntity : Source.getPlayer();
+        /*
+            ↑
+            if (TargetEntity == null){
+                TargetEntity = Source.getPlayer(); }
+         */
+        if (TargetEntity == null) {
+            Source.sendFailure(Component.translatableWithFallback("error.no_target", "不存在被传送目标，由非玩家物体执行命令时请显式指定被传送玩家ID"));
+            return CommandExecuteFailure; }
+        var OldPos =  OldPositions.get(TargetEntity.getUUID());
+        if (OldPos == null) {
+            Source.sendFailure(Component.translatableWithFallback("error.no_old_position", "%s还未使用过随机传送，因此无法回溯", TargetEntity.getName().getString()));
+            return CommandExecuteFailure; }
+        else {
+            TargetEntity.teleportTo(( ServerLevel) TargetEntity.level(), OldPos.x, OldPos.y, OldPos.z, new HashSet<>(), TargetEntity.getYRot(), TargetEntity.getXRot(), false);
+            Entity finalTargetEntity = TargetEntity;
+            // ↑ "lambda 表达式中使用的变量应为 final 或有效 final"
+            Source.sendSuccess(() -> Component.translatableWithFallback("info.success.back", "已将玩家%s传送回原位置", finalTargetEntity.getName().getString()), true);
+            return Command.SINGLE_SUCCESS; } }
 }

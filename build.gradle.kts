@@ -44,7 +44,7 @@ dependencies {
     // "modImplementation"("net.fabricmc.fabric-api:fabric-api-deprecated:${project.extra["fabric_version"]}")
 
     // ↓ 开发测试用
-    runtimeOnly("com.terraformersmc:modmenu:${project.extra["modmenu_version"]}")
+//    runtimeOnly("com.terraformersmc:modmenu:${project.extra["modmenu_version"]}")
 }
 
 tasks.processResources {

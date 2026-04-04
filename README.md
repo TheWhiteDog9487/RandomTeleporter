@@ -1,8 +1,18 @@
+<div align="center">
+    <a href="https://github.com/TheWhiteDog9487/RandomTeleporter/blob/%E4%B8%BB%E8%A6%81/README.md">简体中文（GitHub）</a>&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="https://git.thewhitedog9487.xyz/TheWhiteDog9487/RandomTeleporter/src/branch/%E4%B8%BB%E8%A6%81/README.md">简体中文（Gitea）</a>&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="https://github.com/TheWhiteDog9487/RandomTeleporter/blob/%E4%B8%BB%E8%A6%81/README_EN.md">English（GitHub）</a>&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="https://git.thewhitedog9487.xyz/TheWhiteDog9487/RandomTeleporter/src/branch/%E4%B8%BB%E8%A6%81/README_EN.md">English（Gitea）</a>
+</div>
+
 # 介绍
 这个模组增加了一个命令 `/rtp`，用于将玩家随机传送到世界的任何一个位置。
 
 # 命令格式
 - `/rtp`
+- `/rtp back`
+- `/rtp back <被传送玩家ID>`
+- `/rtp <被传送玩家ID> back`
 - `/rtp <随机半径>`
 - `/rtp <被传送玩家ID>`
 - `/rtp <随机半径> <被传送玩家ID>`
@@ -13,22 +23,32 @@
 - `/rtp <被传送玩家ID> <随机半径> <作为随机中心的实体>`
 - `/rtp <被传送玩家ID> <随机半径> <随机中心点坐标>`
 - `/rtp <随机区域起点坐标> <随机区域终点坐标>`
-- `/rtp <被传送玩家ID> <随机区域起点坐标> <随机区域终点坐标>`
 - `/rtp <随机区域起点坐标> <随机区域终点坐标> <被传送玩家ID>`
+- `/rtp <被传送玩家ID> <随机区域起点坐标> <随机区域终点坐标>`
 - `/rtp <随机区域起点实体> <随机区域终点实体>`
 - `/rtp <随机区域起点实体> <随机区域终点实体> <被传送玩家ID>`
 
 ## 命令示例
 - `/rtp`  
-将执行命令的玩家随机传送到以`(0,0)`为中心点，2.9e7 - 1e4作为随机半径的范围内的随机一点  
-2.9e+7 = 2.9 x 10^7 = 29000000 = 两千九百万  
-1e4 = 10^4 = 10000 = 一万
+将执行命令的玩家随机传送到以`(0,0)`为中心点，$2.9 \times 10^7 - 10^4$ 作为随机半径的范围内的随机一点  
+$2.9 \times 10^7 = 29,000,000$ = 两千九百万  
+$10^4 = 10,000$ = 一万
+
+- `/rtp back`  
+将执行命令的玩家传送回最近一次使用随机传送前的位置  
+**注意：这个功能保存的上一次随机传送前的位置信息只会在游戏（服务器）运行期间存在，游戏（服务器）关闭后就会丢失**
+
+- `/rtp back TheWhiteDog9487`  
+将TheWhiteDog9487传送回其最近一次使用随机传送前的位置
+
+- `/rtp TheWhiteDog9487 back`  
+将TheWhiteDog9487传送回其最近一次使用随机传送前的位置
 
 - `/rtp 1000`  
 将执行命令的玩家随机传送到以`(0,0)`为中心点，1000作为随机半径的范围内的随机一点
 
 - `/rtp TheWhiteDog9487`  
-将TheWhiteDog9487随机传送到以`(0,0)`为中心点，2.9e7 - 1e4作为随机半径的范围内的随机一点  
+将TheWhiteDog9487随机传送到以`(0,0)`为中心点，$2.9 \times 10^7 - 10^4$ 作为随机半径的范围内的随机一点  
 
 - `/rtp TheWhiteDog9487 1000`  
 将TheWhiteDog9487随机传送到以`(0,0)`为中心点，1000作为随机半径的范围内的随机一点  
@@ -51,14 +71,14 @@
 - `/rtp TheWhiteDog9487 1000 10000 10000`  
 将TheWhiteDog9487随机传送到以`(10000,10000)`为中心点，1000作为随机半径的范围内的随机一点  
 
-- `/rtp 10000 10000 20000 20000`  
+- `/rtp 10000.0 10000.0 20000.0 20000.0`  
 将执行命令的玩家随机传送到以`(10000,10000)`,`(20000,10000)`,`(20000,20000)`,`(10000,20000)`四个顶点围成的长方形区域内的随机一点  
 您需要提供的坐标是这个长方形的任意一个顶点和这个顶点对应的斜对角顶点的位置
 
-- `/rtp TheWhiteDog9487 10000 10000 20000 20000`  
+- `/rtp TheWhiteDog9487 10000.0 10000.0 20000.0 20000.0`  
 将TheWhiteDog9487随机传送到以`(10000,10000)`,`(20000,10000)`,`(20000,20000)`,`(10000,20000)`四个顶点围成的长方形区域内的随机一点  
 
-- `/rtp 10000 10000 20000 20000 TheWhiteDog9487`  
+- `/rtp 10000.0 10000.0 20000.0 20000.0 TheWhiteDog9487`  
 将TheWhiteDog9487随机传送到以`(10000,10000)`,`(20000,10000)`,`(20000,20000)`,`(10000,20000)`四个顶点围成的长方形区域内的随机一点
 
 - `/rtp TheWhiteDog9487 TheWhiteDog_CN`  

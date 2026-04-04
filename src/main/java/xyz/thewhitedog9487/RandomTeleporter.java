@@ -19,6 +19,7 @@ public class RandomTeleporter implements ModInitializer {
 		// Proceed with mild caution.
 
         ResourceReloaderListener.Register();
+		ServerLifecycleListener.Register();
 		CommandRegister.Register();
 		LOGGER.info("RandomTeleporter已写入命令注册回调，目标命令将会在该注册的时候被注册");
 	}
