@@ -17,7 +17,11 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"xyz.thewhitedog9487.RandomTeleporter"]
+			{
+				"value": "xyz.thewhitedog9487.RandomTeleporter",
+				"adapter": "kotlin"
+			}
+		]
 	},
 	"mixins": [
 		"randomteleporter.mixins.json",
@@ -30,7 +34,8 @@
 		"fabricloader": ">=0.18.6",
 		"minecraft": "26.1.2",
 		"java": ">=25",
-		"fabric-api": ">=0.145.4"
+		"fabric-api": ">=0.145.4",
+		"fabric-language-kotlin": "*"
 	},
 	"suggests": {
 		"another-mod": "*"
