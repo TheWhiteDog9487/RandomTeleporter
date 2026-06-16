@@ -1,4 +1,4 @@
-package xyz.thewhitedog9487.mixin.client;
+package xyz.thewhitedog9487.client.mixin;
 
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
