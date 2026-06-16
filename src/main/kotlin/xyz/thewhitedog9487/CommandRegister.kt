@@ -37,7 +37,7 @@ val TargetBlock = Blocks.GLASS
  * <br></br>
  * 替换范围：替换中心周围半径为一的正方形区域
  */
-val ReplaceToTargetBlock = setOf<Block?>(
+val ReplaceToTargetBlock = setOf(
     Blocks.AIR,
     Blocks.VOID_AIR,
     Blocks.CAVE_AIR,
@@ -66,7 +66,7 @@ val PermissionLevel = Commands.LEVEL_GAMEMASTERS
 /**
  * 在传送之前记录当前位置，以支持传送回去
  */
-var OldPositions: MutableMap<UUID, Vec3> = HashMap<UUID, Vec3>()
+var OldPositions: MutableMap<UUID, Vec3> = mutableMapOf()
 
 /**
  * 命令执行失败时的返回值

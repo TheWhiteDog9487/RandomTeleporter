@@ -4,8 +4,9 @@ import net.fabricmc.api.ModInitializer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-const val ModID: String = "randomteleporter"
-val ModLogger: Logger = LoggerFactory.getLogger(ModID)
+const val ModID = "randomteleporter"
+const val FriendlyModID = "RandomTeleporter"
+val ModLogger: Logger = LoggerFactory.getLogger(FriendlyModID)
 
 object RandomTeleporter : ModInitializer {
 
