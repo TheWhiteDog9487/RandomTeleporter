@@ -1,8 +1,13 @@
 package xyz.thewhitedog9487
 
+import net.fabricmc.api.EnvType
+import net.fabricmc.api.Environment
 import net.fabricmc.api.ModInitializer
+import net.fabricmc.loader.api.FabricLoader
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import xyz.thewhitedog9487.Event.ResourceReloaderListenerRegister
+import xyz.thewhitedog9487.Event.ServerLifecycleListenerRegister
 
 const val ModID = "randomteleporter"
 const val FriendlyModID = "RandomTeleporter"
@@ -19,8 +24,9 @@ object RandomTeleporter : ModInitializer {
 		// However, some things (like resources) may still be uninitialized.
 		// Proceed with mild caution.
 
-		ServerLifecycleListenerRegister()
+        ServerLifecycleListenerRegister()
 		ResourceReloaderListenerRegister()
-		CommandRegister()
-		ModLogger.info("RandomTeleporter已写入命令注册回调，目标命令将会在该注册的时候被注册")	}
-}
+//		↑ 命令注册在这个里面，在资源加载完成之后注册事件监听器
+		if (FabricLoader.getInstance().environmentType == EnvType.SERVER){
+//			独立服务器根本不可能重载资源，需要手动注册
+			CommandRegister() } } }

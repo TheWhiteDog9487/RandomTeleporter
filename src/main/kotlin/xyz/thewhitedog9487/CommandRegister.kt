@@ -1,7 +1,9 @@
 package xyz.thewhitedog9487
 
 import com.mojang.brigadier.Command
+import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.IntegerArgumentType
+import com.mojang.brigadier.tree.LiteralCommandNode
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
@@ -80,175 +82,205 @@ const val CommandExecuteFailure = 0
 val CommandRootNodeName = setOf(
     "随机传送",
     "rtp" )
+
+val CommandNodes: MutableSet<LiteralCommandNode<CommandSourceStack>> = mutableSetOf()
+
+/**
+ * 是否注册过Fabric API的命令注册回调监听器
+ */
+var CommandRegistrationCallbackEventHasBeenRegistered = false
+
+val CommandArgumentName_Radius = Component.translatableWithFallback("command.argument.radius", "Radius(半径)")
+val CommandArgumentName_Target = Component.translatableWithFallback("command.argument.target", "PlayerID(被传送玩家名)")
+val CommandArgumentName_OriginPosition = Component.translatableWithFallback("command.argument.origin_pos", "OriginPos(随机中心，坐标)")
+val CommandArgumentName_OriginEntity = Component.translatableWithFallback("command.argument.origin_entity", "OriginEntity(随机中心，实体)")
+val CommandArgumentName_RegionFromPosition = Component.translatableWithFallback(
+    "command.argument.region_from_pos",
+    "RegionFrom(随机范围起始位置，坐标)")
+val CommandArgumentName_RegionToPosition = Component.translatableWithFallback(
+    "command.argument.region_to_pos",
+    "RegionTo(随机范围结束位置，坐标)")
+val CommandArgumentName_RegionFromEntity = Component.translatableWithFallback(
+    "command.argument.region_from_entity",
+    "RegionFrom(随机范围起始位置，实体)")
+val CommandArgumentName_RegionToEntity = Component.translatableWithFallback(
+    "command.argument.region_to_entity",
+    "RegionTo(随机范围结束位置，实体)")
+
 /**
  * 使用Fabric API向游戏内注册命令
  * <br>
  * @see <a href="https://docs.fabricmc.net/zh_cn/develop/commands/basics">Fabric Docs (中文)</a>
- * @see <a href="https://wiki.fabricmc.net/zh_cn:tutorial:commands">Fabric Wiki (中文)</a>
  * @see <a href="https://docs.fabricmc.net/develop/commands/basics">Fabric Docs (English)</a>
- * @see <a href="https://wiki.fabricmc.net/tutorial:commands">Fabric Wiki (English)</a>
  */
-fun CommandRegister() {
+fun CommandRegister(InGameCommandDispatcherInstance: CommandDispatcher<CommandSourceStack>? = null) {
+    val Register: (CommandDispatcherInstance: CommandDispatcher<CommandSourceStack>, NodeName: String) -> Unit = { CommandDispatcherInstance, NodeName ->
+        val Node = CommandDispatcherInstance.register(Commands.literal(NodeName)
+            // /rtp
+            .requires(Commands.hasPermission(PermissionLevel))
+            .executes{ commandContext -> ExecuteCommand(commandContext.source) }
+
+            // /rtp back
+            .then(Commands.literal("back")
+                .requires(Commands.hasPermission(PermissionLevel))
+                .executes { commandContext -> TeleportBack(commandContext.source) } )
+
+            // /rtp back <PlayerID(被传送玩家名)>
+            .then(Commands.literal("back")
+                .then(Commands.argument(CommandArgumentName_Target.string, EntityArgument.entity())
+                    .requires(Commands.hasPermission(PermissionLevel))
+                    .executes { commandContext -> TeleportBack(commandContext.source,
+                        EntityArgument.getEntity(commandContext, CommandArgumentName_Target.string)) } ) )
+
+            // /rtp <PlayerID(被传送玩家名)> back
+            .then(Commands.argument(CommandArgumentName_Target.string, EntityArgument.entity())
+                .then(Commands.literal("back")
+                    .requires(Commands.hasPermission(PermissionLevel))
+                    .executes { commandContext -> TeleportBack(commandContext.source,
+                        EntityArgument.getEntity(commandContext, CommandArgumentName_Target.string)) } ) )
+
+            // /rtp <Radius(半径)>
+            .then(Commands.argument(CommandArgumentName_Radius.string, IntegerArgumentType.integer(0))
+                .requires(Commands.hasPermission(PermissionLevel))
+                .executes { commandContext -> ExecuteCommand(commandContext.source,
+                    Radius = IntegerArgumentType.getInteger(commandContext, CommandArgumentName_Radius.string)) } )
+
+            // /rtp <PlayerID(被传送玩家名)>
+            .then(Commands.argument(CommandArgumentName_Target.string, EntityArgument.entity())
+                .requires(Commands.hasPermission(PermissionLevel))
+                .executes { commandContext -> ExecuteCommand(commandContext.source,
+                    Entity = EntityArgument.getEntity(commandContext, CommandArgumentName_Target.string)) } )
+
+            // /rtp <Radius(半径)> <PlayerID(被传送玩家名)>
+            .then(Commands.argument(CommandArgumentName_Radius.string, IntegerArgumentType.integer(0))
+                .then(Commands.argument(CommandArgumentName_Target.string, EntityArgument.entity())
+                    .requires(Commands.hasPermission(PermissionLevel))
+                    .executes { commandContext -> ExecuteCommand(commandContext.source,
+                        Radius = IntegerArgumentType.getInteger(commandContext, CommandArgumentName_Radius.string),
+                        Entity = EntityArgument.getEntity(commandContext, CommandArgumentName_Target.string)) } ) )
+
+            // /rtp <PlayerID(被传送玩家名)> <Radius(半径)>
+            .then(Commands.argument(CommandArgumentName_Target.string, EntityArgument.entity())
+                .then(Commands.argument(CommandArgumentName_Radius.string, IntegerArgumentType.integer(0))
+                    .requires(Commands.hasPermission(PermissionLevel))
+                    .executes { commandContext -> ExecuteCommand(commandContext.source,
+                        Radius = IntegerArgumentType.getInteger(commandContext, CommandArgumentName_Radius.string),
+                        Entity = EntityArgument.getEntity(commandContext, CommandArgumentName_Target.string)) } ) )
+
+            // /rtp <Radius(半径)> <OriginPos(随机中心，坐标)>
+            .then(Commands.argument(CommandArgumentName_Radius.string, IntegerArgumentType.integer(0))
+                .then(Commands.argument(CommandArgumentName_OriginPosition.string, Vec2Argument.vec2())
+                    .requires(Commands.hasPermission(PermissionLevel))
+                    .executes { commandContext -> ExecuteCommand(commandContext.source,
+                        Radius = IntegerArgumentType.getInteger(commandContext, CommandArgumentName_Radius.string),
+                        Origin = Vec2Argument.getVec2(commandContext, CommandArgumentName_OriginPosition.string)) } ) )
+
+            // /rtp <Radius(半径)> <PlayerID(被传送玩家名)> <OriginEntity(随机中心，实体)>
+            .then(Commands.argument(CommandArgumentName_Radius.string, IntegerArgumentType.integer(0))
+                .then(Commands.argument(CommandArgumentName_Target.string, EntityArgument.entity())
+                    .then(Commands.argument(CommandArgumentName_OriginEntity.string, EntityArgument.entity())
+                        .requires(Commands.hasPermission(PermissionLevel))
+                        .executes { commandContext -> ExecuteCommand(commandContext.source,
+                            Radius = IntegerArgumentType.getInteger(commandContext, CommandArgumentName_Radius.string),
+                            Entity = EntityArgument.getEntity(commandContext, CommandArgumentName_Target.string),
+                            Origin = Vec2(
+                                EntityArgument.getEntity(commandContext, CommandArgumentName_OriginEntity.string).position().x.toFloat(),
+                                EntityArgument.getEntity(commandContext, CommandArgumentName_OriginEntity.string).position().z.toFloat() ) ) } ) ) )
+
+            // /rtp <Radius(半径)> <PlayerID(被传送玩家名)> <OriginPos(随机中心，坐标)>
+            .then(Commands.argument(CommandArgumentName_Radius.string, IntegerArgumentType.integer(0))
+                .then(Commands.argument(CommandArgumentName_Target.string, EntityArgument.entity())
+                    .then(Commands.argument(CommandArgumentName_OriginPosition.string, Vec2Argument.vec2())
+                        .requires(Commands.hasPermission(PermissionLevel))
+                        .executes { commandContext -> ExecuteCommand(commandContext.source,
+                            Radius = IntegerArgumentType.getInteger(commandContext, CommandArgumentName_Radius.string),
+                            Entity = EntityArgument.getEntity(commandContext, CommandArgumentName_Target.string),
+                            Origin = Vec2Argument.getVec2(commandContext, CommandArgumentName_OriginPosition.string) ) } ) ) )
+
+            // /rtp <PlayerID(被传送玩家名)> <Radius(半径)> <OriginEntity(随机中心，实体)>
+            .then(Commands.argument(CommandArgumentName_Target.string, EntityArgument.entity())
+                .then(Commands.argument(CommandArgumentName_Radius.string, IntegerArgumentType.integer(0))
+                    .then(Commands.argument(CommandArgumentName_OriginEntity.string, EntityArgument.entity())
+                        .requires(Commands.hasPermission(PermissionLevel))
+                        .executes { commandContext -> ExecuteCommand(commandContext.source,
+                            Radius = IntegerArgumentType.getInteger(commandContext, CommandArgumentName_Radius.string),
+                            Entity = EntityArgument.getEntity(commandContext, CommandArgumentName_Target.string),
+                            Origin = Vec2(
+                                EntityArgument.getEntity(commandContext, CommandArgumentName_OriginEntity.string).position().x.toFloat(),
+                                EntityArgument.getEntity(commandContext, CommandArgumentName_OriginEntity.string).position().z.toFloat() ) ) } ) ) )
+
+            // /rtp <PlayerID(被传送玩家名)> <Radius(半径)> <OriginPos(随机中心，坐标)>
+            .then(Commands.argument(CommandArgumentName_Target.string, EntityArgument.entity())
+                .then(Commands.argument(CommandArgumentName_Radius.string, IntegerArgumentType.integer(0))
+                    .then(Commands.argument(CommandArgumentName_OriginPosition.string, Vec2Argument.vec2())
+                        .requires(Commands.hasPermission(PermissionLevel))
+                        .executes { commandContext -> ExecuteCommand(commandContext.source,
+                            Radius = IntegerArgumentType.getInteger(commandContext, CommandArgumentName_Radius.string),
+                            Entity = EntityArgument.getEntity(commandContext, CommandArgumentName_Target.string),
+                            Origin = Vec2Argument.getVec2(commandContext, CommandArgumentName_OriginPosition.string) ) } ) ) )
+
+            // /rtp <RegionFrom(随机区域起点，坐标)> <RegionTo(随机区域终点，坐标)>
+            .then(Commands.argument(CommandArgumentName_RegionFromPosition.string, Vec2Argument.vec2())
+                .then(Commands.argument(CommandArgumentName_RegionToPosition.string, Vec2Argument.vec2())
+                    .requires(Commands.hasPermission(PermissionLevel))
+                    .executes { commandContext -> ExecuteCommand(commandContext.source,
+                        RegionFrom = Vec2Argument.getVec2(commandContext, CommandArgumentName_RegionFromPosition.string),
+                        RegionTo = Vec2Argument.getVec2(commandContext, CommandArgumentName_RegionToPosition.string) ) } ) )
+
+            // /rtp <RegionFrom(随机区域起点，坐标)> <RegionTo(随机区域终点，坐标)> <PlayerID(被传送玩家名)>
+            .then(Commands.argument(CommandArgumentName_RegionFromPosition.string, Vec2Argument.vec2())
+                .then(Commands.argument(CommandArgumentName_RegionToPosition.string, Vec2Argument.vec2())
+                    .then(Commands.argument(CommandArgumentName_Target.string, EntityArgument.entity())
+                        .requires(Commands.hasPermission(PermissionLevel))
+                        .executes { commandContext -> ExecuteCommand(commandContext.source,
+                            Entity = EntityArgument.getEntity(commandContext, CommandArgumentName_Target.string),
+                            RegionFrom = Vec2Argument.getVec2(commandContext, CommandArgumentName_RegionFromPosition.string),
+                            RegionTo = Vec2Argument.getVec2(commandContext, CommandArgumentName_RegionToPosition.string) ) } ) ) )
+
+            // /rtp <PlayerID(被传送玩家名)> <RegionFrom(随机区域起点，坐标)> <RegionTo(随机区域终点，坐标)>
+            .then(Commands.argument(CommandArgumentName_Target.string, EntityArgument.entity())
+                .then(Commands.argument(CommandArgumentName_RegionFromPosition.string, Vec2Argument.vec2())
+                    .then(Commands.argument(CommandArgumentName_RegionToPosition.string, Vec2Argument.vec2())
+                        .requires(Commands.hasPermission(PermissionLevel))
+                        .executes { commandContext -> ExecuteCommand(commandContext.source,
+                            Entity = EntityArgument.getEntity(commandContext, CommandArgumentName_Target.string),
+                            RegionFrom = Vec2Argument.getVec2(commandContext, CommandArgumentName_RegionFromPosition.string),
+                            RegionTo = Vec2Argument.getVec2(commandContext, CommandArgumentName_RegionToPosition.string) ) } ) ) )
+
+            // /rtp <RegionFrom(随机区域起点，实体)> <RegionTo(随机区域终点，实体)>
+            .then(Commands.argument(CommandArgumentName_RegionFromEntity.string, EntityArgument.entity())
+                .then(Commands.argument(CommandArgumentName_RegionToEntity.string, EntityArgument.entity())
+                    .requires(Commands.hasPermission(PermissionLevel))
+                    .executes { commandContext -> ExecuteCommand(commandContext.source,
+                        RegionFrom = Vec2(
+                            EntityArgument.getEntity(commandContext, CommandArgumentName_RegionFromEntity.string).position().x.toFloat(),
+                            EntityArgument.getEntity(commandContext, CommandArgumentName_RegionFromEntity.string).position().z.toFloat() ),
+                        RegionTo = Vec2(
+                            EntityArgument.getEntity(commandContext, CommandArgumentName_RegionToEntity.string).position().x.toFloat(),
+                            EntityArgument.getEntity(commandContext, CommandArgumentName_RegionToEntity.string).position().z.toFloat() ) ) } ) )
+
+            // /rtp <RegionFrom(随机区域起点，实体)> <RegionTo(随机区域终点，实体)> <PlayerID(被传送玩家名)>
+            .then(Commands.argument(CommandArgumentName_RegionFromEntity.string, EntityArgument.entity())
+                .then(Commands.argument(CommandArgumentName_RegionToEntity.string, EntityArgument.entity())
+                    .then(Commands.argument(CommandArgumentName_Target.string, EntityArgument.entity())
+                        .requires(Commands.hasPermission(PermissionLevel))
+                        .executes { commandContext -> ExecuteCommand(commandContext.source,
+                            Entity = EntityArgument.getEntity(commandContext, CommandArgumentName_Target.string),
+                            RegionFrom = Vec2(
+                                EntityArgument.getEntity(commandContext, CommandArgumentName_RegionFromEntity.string).position().x.toFloat(),
+                                EntityArgument.getEntity(commandContext, CommandArgumentName_RegionFromEntity.string).position().z.toFloat() ),
+                            RegionTo = Vec2(
+                                EntityArgument.getEntity(commandContext, CommandArgumentName_RegionToEntity.string).position().x.toFloat(),
+                                EntityArgument.getEntity(commandContext, CommandArgumentName_RegionToEntity.string).position().z.toFloat() ) ) } ) ) ) )
+        CommandNodes.add(Node) }
+    for (RootNodeName in CommandRootNodeName) {
+        InGameCommandDispatcherInstance?.let {
+            Register(it, RootNodeName) } }
+    if (CommandRegistrationCallbackEventHasBeenRegistered) return
     for (RootNodeName in CommandRootNodeName) {
         CommandRegistrationCallback.EVENT.register { dispatcher, context, selection ->
-            dispatcher.register(Commands.literal(RootNodeName)
-                // /rtp
-                .requires(Commands.hasPermission(PermissionLevel))
-                .executes{ commandContext -> ExecuteCommand(commandContext.source) }
-
-                // /rtp back
-                .then(Commands.literal("back")
-                    .requires(Commands.hasPermission(PermissionLevel))
-                    .executes { commandContext -> TeleportBack(commandContext.source) } )
-
-                // /rtp back <PlayerID(被传送玩家名)>
-                .then(Commands.literal("back")
-                    .then(Commands.argument(CommandArgumentName_Target, EntityArgument.entity())
-                        .requires(Commands.hasPermission(PermissionLevel))
-                        .executes { commandContext -> TeleportBack(commandContext.source,
-                            EntityArgument.getEntity(commandContext, CommandArgumentName_Target)) } ) )
-
-                // /rtp <PlayerID(被传送玩家名)> back
-                .then(Commands.argument(CommandArgumentName_Target, EntityArgument.entity())
-                    .then(Commands.literal("back")
-                        .requires(Commands.hasPermission(PermissionLevel))
-                        .executes { commandContext -> TeleportBack(commandContext.source,
-                            EntityArgument.getEntity(commandContext, CommandArgumentName_Target)) } ) )
-
-                // /rtp <Radius(半径)>
-                .then(Commands.argument(CommandArgumentName_Radius, IntegerArgumentType.integer(0))
-                    .requires(Commands.hasPermission(PermissionLevel))
-                    .executes { commandContext -> ExecuteCommand(commandContext.source,
-                        Radius = IntegerArgumentType.getInteger(commandContext, CommandArgumentName_Radius)) } )
-
-                // /rtp <PlayerID(被传送玩家名)>
-                .then(Commands.argument(CommandArgumentName_Target, EntityArgument.entity())
-                    .requires(Commands.hasPermission(PermissionLevel))
-                    .executes { commandContext -> ExecuteCommand(commandContext.source,
-                        Entity = EntityArgument.getEntity(commandContext, CommandArgumentName_Target)) } )
-
-                // /rtp <Radius(半径)> <PlayerID(被传送玩家名)>
-                .then(Commands.argument(CommandArgumentName_Radius, IntegerArgumentType.integer(0))
-                    .then(Commands.argument(CommandArgumentName_Target, EntityArgument.entity())
-                        .requires(Commands.hasPermission(PermissionLevel))
-                        .executes { commandContext -> ExecuteCommand(commandContext.source,
-                            Radius = IntegerArgumentType.getInteger(commandContext, CommandArgumentName_Radius),
-                            Entity = EntityArgument.getEntity(commandContext, CommandArgumentName_Target)) } ) )
-
-                // /rtp <PlayerID(被传送玩家名)> <Radius(半径)>
-                .then(Commands.argument(CommandArgumentName_Target, EntityArgument.entity())
-                    .then(Commands.argument(CommandArgumentName_Radius, IntegerArgumentType.integer(0))
-                        .requires(Commands.hasPermission(PermissionLevel))
-                        .executes { commandContext -> ExecuteCommand(commandContext.source,
-                            Radius = IntegerArgumentType.getInteger(commandContext, CommandArgumentName_Radius),
-                            Entity = EntityArgument.getEntity(commandContext, CommandArgumentName_Target)) } ) )
-
-                // /rtp <Radius(半径)> <OriginPos(随机中心，坐标)>
-                .then(Commands.argument(CommandArgumentName_Radius, IntegerArgumentType.integer(0))
-                    .then(Commands.argument(CommandArgumentName_OriginPosition, Vec2Argument.vec2())
-                        .requires(Commands.hasPermission(PermissionLevel))
-                        .executes { commandContext -> ExecuteCommand(commandContext.source,
-                            Radius = IntegerArgumentType.getInteger(commandContext, CommandArgumentName_Radius),
-                            Origin = Vec2Argument.getVec2(commandContext, CommandArgumentName_OriginPosition)) } ) )
-
-                // /rtp <Radius(半径)> <PlayerID(被传送玩家名)> <OriginEntity(随机中心，实体)>
-                .then(Commands.argument(CommandArgumentName_Radius, IntegerArgumentType.integer(0))
-                    .then(Commands.argument(CommandArgumentName_Target, EntityArgument.entity())
-                        .then(Commands.argument(CommandArgumentName_OriginEntity, EntityArgument.entity())
-                            .requires(Commands.hasPermission(PermissionLevel))
-                            .executes { commandContext -> ExecuteCommand(commandContext.source,
-                                Radius = IntegerArgumentType.getInteger(commandContext, CommandArgumentName_Radius),
-                                Entity = EntityArgument.getEntity(commandContext, CommandArgumentName_Target),
-                                Origin = Vec2(
-                                    EntityArgument.getEntity(commandContext, CommandArgumentName_OriginEntity).position().x.toFloat(),
-                                    EntityArgument.getEntity(commandContext, CommandArgumentName_OriginEntity).position().z.toFloat() ) ) } ) ) )
-
-                // /rtp <Radius(半径)> <PlayerID(被传送玩家名)> <OriginPos(随机中心，坐标)>
-                .then(Commands.argument(CommandArgumentName_Radius, IntegerArgumentType.integer(0))
-                    .then(Commands.argument(CommandArgumentName_Target, EntityArgument.entity())
-                        .then(Commands.argument(CommandArgumentName_OriginPosition, Vec2Argument.vec2())
-                            .requires(Commands.hasPermission(PermissionLevel))
-                            .executes { commandContext -> ExecuteCommand(commandContext.source,
-                                Radius = IntegerArgumentType.getInteger(commandContext, CommandArgumentName_Radius),
-                                Entity = EntityArgument.getEntity(commandContext, CommandArgumentName_Target),
-                                Origin = Vec2Argument.getVec2(commandContext, CommandArgumentName_OriginPosition) ) } ) ) )
-
-                // /rtp <PlayerID(被传送玩家名)> <Radius(半径)> <OriginEntity(随机中心，实体)>
-                .then(Commands.argument(CommandArgumentName_Target, EntityArgument.entity())
-                    .then(Commands.argument(CommandArgumentName_Radius, IntegerArgumentType.integer(0))
-                        .then(Commands.argument(CommandArgumentName_OriginEntity, EntityArgument.entity())
-                            .requires(Commands.hasPermission(PermissionLevel))
-                            .executes { commandContext -> ExecuteCommand(commandContext.source,
-                                Radius = IntegerArgumentType.getInteger(commandContext, CommandArgumentName_Radius),
-                                Entity = EntityArgument.getEntity(commandContext, CommandArgumentName_Target),
-                                Origin = Vec2(
-                                    EntityArgument.getEntity(commandContext, CommandArgumentName_OriginEntity).position().x.toFloat(),
-                                    EntityArgument.getEntity(commandContext, CommandArgumentName_OriginEntity).position().z.toFloat() ) ) } ) ) )
-
-                // /rtp <PlayerID(被传送玩家名)> <Radius(半径)> <OriginPos(随机中心，坐标)>
-                .then(Commands.argument(CommandArgumentName_Target, EntityArgument.entity())
-                    .then(Commands.argument(CommandArgumentName_Radius, IntegerArgumentType.integer(0))
-                        .then(Commands.argument(CommandArgumentName_OriginPosition, Vec2Argument.vec2())
-                            .requires(Commands.hasPermission(PermissionLevel))
-                            .executes { commandContext -> ExecuteCommand(commandContext.source,
-                                Radius = IntegerArgumentType.getInteger(commandContext, CommandArgumentName_Radius),
-                                Entity = EntityArgument.getEntity(commandContext, CommandArgumentName_Target),
-                                Origin = Vec2Argument.getVec2(commandContext, CommandArgumentName_OriginPosition) ) } ) ) )
-
-                // /rtp <RegionFrom(随机区域起点，坐标)> <RegionTo(随机区域终点，坐标)>
-                .then(Commands.argument(CommandArgumentName_RegionFromPosition, Vec2Argument.vec2())
-                    .then(Commands.argument(CommandArgumentName_RegionToPosition, Vec2Argument.vec2())
-                        .requires(Commands.hasPermission(PermissionLevel))
-                        .executes { commandContext -> ExecuteCommand(commandContext.source,
-                            RegionFrom = Vec2Argument.getVec2(commandContext, CommandArgumentName_RegionFromPosition),
-                            RegionTo = Vec2Argument.getVec2(commandContext, CommandArgumentName_RegionToPosition) ) } ) )
-
-                // /rtp <RegionFrom(随机区域起点，坐标)> <RegionTo(随机区域终点，坐标)> <PlayerID(被传送玩家名)>
-                .then(Commands.argument(CommandArgumentName_RegionFromPosition, Vec2Argument.vec2())
-                    .then(Commands.argument(CommandArgumentName_RegionToPosition, Vec2Argument.vec2())
-                        .then(Commands.argument(CommandArgumentName_Target, EntityArgument.entity())
-                            .requires(Commands.hasPermission(PermissionLevel))
-                            .executes { commandContext -> ExecuteCommand(commandContext.source,
-                                Entity = EntityArgument.getEntity(commandContext, CommandArgumentName_Target),
-                                RegionFrom = Vec2Argument.getVec2(commandContext, CommandArgumentName_RegionFromPosition),
-                                RegionTo = Vec2Argument.getVec2(commandContext, CommandArgumentName_RegionToPosition) ) } ) ) )
-
-                // /rtp <PlayerID(被传送玩家名)> <RegionFrom(随机区域起点，坐标)> <RegionTo(随机区域终点，坐标)>
-                .then(Commands.argument(CommandArgumentName_Target, EntityArgument.entity())
-                    .then(Commands.argument(CommandArgumentName_RegionFromPosition, Vec2Argument.vec2())
-                        .then(Commands.argument(CommandArgumentName_RegionToPosition, Vec2Argument.vec2())
-                            .requires(Commands.hasPermission(PermissionLevel))
-                            .executes { commandContext -> ExecuteCommand(commandContext.source,
-                                Entity = EntityArgument.getEntity(commandContext, CommandArgumentName_Target),
-                                RegionFrom = Vec2Argument.getVec2(commandContext, CommandArgumentName_RegionFromPosition),
-                                RegionTo = Vec2Argument.getVec2(commandContext, CommandArgumentName_RegionToPosition) ) } ) ) )
-
-                // /rtp <RegionFrom(随机区域起点，实体)> <RegionTo(随机区域终点，实体)>
-                .then(Commands.argument(CommandArgumentName_RegionFromEntity, EntityArgument.entity())
-                    .then(Commands.argument(CommandArgumentName_RegionToEntity, EntityArgument.entity())
-                        .requires(Commands.hasPermission(PermissionLevel))
-                        .executes { commandContext -> ExecuteCommand(commandContext.source,
-                            RegionFrom = Vec2(
-                                EntityArgument.getEntity(commandContext, CommandArgumentName_RegionFromEntity).position().x.toFloat(),
-                                EntityArgument.getEntity(commandContext, CommandArgumentName_RegionFromEntity).position().z.toFloat() ),
-                            RegionTo = Vec2(
-                                EntityArgument.getEntity(commandContext, CommandArgumentName_RegionToEntity).position().x.toFloat(),
-                                EntityArgument.getEntity(commandContext, CommandArgumentName_RegionToEntity).position().z.toFloat() ) ) } ) )
-
-                // /rtp <RegionFrom(随机区域起点，实体)> <RegionTo(随机区域终点，实体)> <PlayerID(被传送玩家名)>
-                .then(Commands.argument(CommandArgumentName_RegionFromEntity, EntityArgument.entity())
-                    .then(Commands.argument(CommandArgumentName_RegionToEntity, EntityArgument.entity())
-                        .then(Commands.argument(CommandArgumentName_Target, EntityArgument.entity())
-                            .requires(Commands.hasPermission(PermissionLevel))
-                            .executes { commandContext -> ExecuteCommand(commandContext.source,
-                                Entity = EntityArgument.getEntity(commandContext, CommandArgumentName_Target),
-                                RegionFrom = Vec2(
-                                    EntityArgument.getEntity(commandContext, CommandArgumentName_RegionFromEntity).position().x.toFloat(),
-                                    EntityArgument.getEntity(commandContext, CommandArgumentName_RegionFromEntity).position().z.toFloat() ),
-                                RegionTo = Vec2(
-                                    EntityArgument.getEntity(commandContext, CommandArgumentName_RegionToEntity).position().x.toFloat(),
-                                    EntityArgument.getEntity(commandContext, CommandArgumentName_RegionToEntity).position().z.toFloat() ) ) } ) ) )
-            ) } } }
+            Register(dispatcher, RootNodeName) } }
+    CommandRegistrationCallbackEventHasBeenRegistered = true }
 
 fun ExecuteCommand(
     Source: CommandSourceStack,
