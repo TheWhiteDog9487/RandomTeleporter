@@ -1,9 +1,10 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.nio.file.Paths
 
 plugins {
     id("net.fabricmc.fabric-loom")
     `maven-publish`
-    id("org.jetbrains.kotlin.jvm") version "2.3.21"
+    id("org.jetbrains.kotlin.jvm") version "2.4.0"
 }
 
 version = providers.gradleProperty("mod_version").get()
@@ -19,6 +20,27 @@ repositories {
         name = "Terraformers"
         url = uri("https://maven.terraformersmc.com/") }
 }
+
+afterEvaluate {
+    val MixinJarPath = configurations.loaderLibraries.get().resolvedConfiguration
+        .resolvedArtifacts
+        .find { it.moduleVersion.id.group == "net.fabricmc" && it.moduleVersion.id.name == "sponge-mixin" }!!
+        .file
+    val IsSupportDceVM = Paths.get(System.getProperty("java.home"))
+        .resolve("bin")
+        .resolve("java")
+        .toFile()
+        .let {
+            val ReturnCode = ProcessBuilder(it.absolutePath, "-XX:+AllowEnhancedClassRedefinition", "-version")
+                .start()
+                .waitFor()
+            return@let ReturnCode == 0 }
+    loom.runs.named("client") {
+        jvmArguments.add("-javaagent:${MixinJarPath.absolutePath}")
+        if (IsSupportDceVM == true) jvmArguments.add("-XX:+AllowEnhancedClassRedefinition") }
+    loom.runs.named("server") {
+        jvmArguments.add("-javaagent:${MixinJarPath.absolutePath}")
+        if (IsSupportDceVM == true) jvmArguments.add("-XX:+AllowEnhancedClassRedefinition") } }
 
 loom {
     splitEnvironmentSourceSets()
@@ -46,7 +68,7 @@ dependencies {
     // "modImplementation"("net.fabricmc.fabric-api:fabric-api-deprecated:${project.extra["fabric_version"]}")
 
     // ↓ 开发测试用
-//    runtimeOnly("com.terraformersmc:modmenu:${project.extra["modmenu_version"]}")
+    runtimeOnly("com.terraformersmc:modmenu:${providers.gradleProperty("modmenu_version").get()}")
 }
 
 
